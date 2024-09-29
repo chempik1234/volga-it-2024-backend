@@ -1,0 +1,8 @@
+/.venv/
+/env/db.env
+/env/django_db.env
+/env/django_general.env
+/env/django_secrets_account.env
+/env/django_secrets_hospital.env
+/env/django_secrets_timetable.env
+/env/django_secrets_document.env

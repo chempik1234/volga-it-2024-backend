@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  account_microservice:
+    build:
+      context: ./account_microservice/
+    env_file:
+      - env/django_secrets_account.env
+      - env/django_db.env
+      - env/django_general.env
+    ports:
+      - "8081:8081"
+    depends_on:
+      db:
+        condition: service_healthy
+  hospital_microservice:
+    build:
+      context: ./hospital_microservice/
+    env_file:
+      - env/django_secrets_hospital.env
+      - env/django_db.env
+      - env/django_general.env
+    ports:
+      - "8082:8082"
+    depends_on:
+      db:
+        condition: service_healthy
+  timetable_microservice:
+    build:
+      context: ./timetable_microservice/
+    env_file:
+      - env/django_secrets_timetable.env
+      - env/django_db.env
+      - env/django_general.env
+    ports:
+      - "8083:8083"
+    depends_on:
+      db:
+        condition: service_healthy
+  document_microservice:
+    build:
+      context: ./document_microservice/
+    env_file:
+      - env/django_secrets_document.env
+      - env/django_db.env
+      - env/django_general.env
+    ports:
+      - "8084:8084"
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:15.1
+    restart: always
+    user: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    env_file:
+      - env/db.env
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  cache:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping" ]
+      interval: 5s
+      timeout: 1s
+      retries: 3
+  rabbitmq:
+    image: rabbitmq:3.10.1-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # UI Web version
+    restart: always
+  nginx:
+    image: nginx:latest
+    build: ./nginx
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      # - ./nginx/ssl:/etc/nginx/ssl  <-- protocol safety goes to play roblox
+    depends_on:
+      - account_microservice
+      - document_microservice
+      - hospital_microservice
+      - timetable_microservice
+    ports:
+      - "1337:80"
+      # - "443:443"  <-- protocol safety goes to play roblox
+volumes:
+  db-data:
+  redis-data:
