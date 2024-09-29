@@ -99,6 +99,10 @@ CACHES = {
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", 'rabbitmq')
 AUTH_QUEUE_REQUEST = os.getenv("AUTH_QUEUE_REQUEST", "auth_queue_request")
 AUTH_QUEUE_RESPONSE = os.getenv("AUTH_QUEUE_RESPONSE", "auth_queue_response")
+HOSPITAL_AND_MAYBE_ROOM_REQUEST = os.getenv("HOSPITAL_AND_MAYBE_ROOM_REQUEST", "hospital_and_maybe_room_request")
+HOSPITAL_AND_MAYBE_ROOM_RESPONSE = os.getenv("HOSPITAL_AND_MAYBE_ROOM_RESPONSE", "hospital_and_maybe_room_response")
+DOCTOR_QUEUE_REQUEST = os.getenv("DOCTOR_QUEUE_REQUEST", "doctor_queue_request")
+DOCTOR_QUEUE_RESPONSE = os.getenv("DOCTOR_QUEUE_RESPONSE", "doctor_queue_response")
 
 
 # Password validation

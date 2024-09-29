@@ -25,13 +25,15 @@ class SignUpView(APIView):
     queryset = User.objects.all()
 
     def post(self, request: Request) -> Response:
-        try:  # json body needs to be decoded, but if it contains syntax errors, an exception occures
-            body_unicode = request.body.decode('utf-8')
-            post_ = json.loads(body_unicode)
-        except json.JSONDecodeError:
-            return Response({"error": "Invalid JSON format"}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # try:  # json body needs to be decoded, but if it contains syntax errors, an exception occures
+        #     body_unicode = request.body.decode('utf-8')
+        #     post_ = json.loads(body_unicode)
+        # except json.JSONDecodeError:
+        #     return Response({"error": "Invalid JSON format"}, status=status.HTTP_400_BAD_REQUEST)
+        # except Exception as e:
+        #     return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        post_ = request.data  # TODO: remove if deecoding works
+
         last_name, first_name, username, password = (post_.get("lastName"),
                                                      post_.get("firstName"),
                                                      post_.get('username'),
@@ -59,13 +61,15 @@ class SignInView(APIView):
     serializer_class = TokenObtainPairSerializer
 
     def post(self, request: Request) -> Response:
-        try:  # json body needs to be decoded, but if it contains syntax errors, an exception occures
-            body_unicode = request.body.decode('utf-8')
-            post_ = json.loads(body_unicode)
-        except json.JSONDecodeError:
-            return Response({"error": "Invalid JSON format"}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # try:  # json body needs to be decoded, but if it contains syntax errors, an exception occures
+        #     body_unicode = request.body.decode('utf-8')
+        #     post_ = json.loads(body_unicode)
+        # except json.JSONDecodeError:
+        #     return Response({"error": "Invalid JSON format"}, status=status.HTTP_400_BAD_REQUEST)
+        # except Exception as e:
+        #     return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        post_ = request.data  # TODO: remove if deecoding works
+
         username, password = post_.get('username'), post_.get('password')
         if not (username and password):  # these are required fields, ERROR 400 if absent
             return Response({"details": "username and password are required in body"},

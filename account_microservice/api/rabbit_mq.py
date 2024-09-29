@@ -10,8 +10,12 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from account_microservice.api.serializers import CustomUserSerializerWithRoles
 
-auth_queue_request = settings.AUTH_QUEUE_REQUEST
+auth_queue_request = settings.AUTH_QUEUE_REQUEST  # Used in outer calls, not linked to send/consume functions
 auth_queue_response = settings.AUTH_QUEUE_RESPONSE
+hospital_and_maybe_room_queue_request = settings.HOSPITAL_AND_MAYBE_ROOM_QUEUE_REQUEST
+hospital_and_maybe_room_queue_response = settings.HOSPITAL_AND_MAYBE_ROOM_QUEUE_RESPONSE
+doctor_queue_request = settings.DOCTOR_QUEUE_REQUEST
+doctor_queue_response = settings.DOCTOR_QUEUE_RESPONSE
 
 connection = None  # it will change during the first query/response, check the connect_to_rabbit_mq function
 
@@ -35,28 +39,18 @@ def send_request_rabbit_mq(queue_name, message):
     connection.close()
 
 
-def start_consuming_with_rabbit_mq(queue_name, function_check_data=None):
+def start_consuming_with_rabbit_mq(queue_name, data_process_function):
     """
-    Start consuming the token queue to validate JWT's when other microservices send requests
+    Basic function to consume RabbitMQ requests and give response.
+
+    Uses the data_process_function to get response message from data.
     """
-    queue_for_callback_response = Queue()  # queue for the data storage
-    response_event = Event()  # tells us that the data is ready to be returned
 
     def callback(ch, method, properties, body):
         print("AUTH MICROSERVICE: RECEIVED MESSAGE", body, sep='\n')  # show message in terminal
-        data = json.loads(body)  # {accessToken: string}
-        access_token = data.get('accessToken')
-        try:
-            user_id = AccessToken(access_token).get("id")  # check the token with rest_framework; if it's valid, get ID
-            user_from_token = User.objects.get(user_id)
-            message = {
-                "accessToken": access_token,                         # genius message identification
-                "user": CustomUserSerializerWithRoles(user_from_token).data}  # user data for other microservice
-        except TokenError:
-            message = {
-                "accessToken": access_token  # genius message identification
-            }                                # user data is None
-        send_request_rabbit_mq(auth_queue_response, json.dumps(message))
+        data = json.loads(body)
+        message, response_queue = data_process_function(data)
+        send_request_rabbit_mq(response_queue, json.dumps(message))
 
     if not connection:  # if connection hadn't been created, it's time to do it
         connect_to_rabbit_mq()
