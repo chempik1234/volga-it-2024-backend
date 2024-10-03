@@ -1,17 +1,20 @@
 from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
-class CustomTokenVerifyView(APIView):
+class CustomTokenVerifyView(GenericAPIView):
     """
     An endpoint for token validation, simply returns: { valid: bool }
     GET /api/Authentication/Validate
     """
+    allowed_methods = ["get"]
+    http_method_names = ["get"]
+
     def get(self, request: Request) -> Response:
         access_token = request.query_params.get("accessToken")  # try to retrieve the token from params
         if not access_token:  # it's required, so ERROR 400 is thrown if absent

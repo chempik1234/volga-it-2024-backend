@@ -59,7 +59,6 @@ class CustomUser(AbstractBaseUser):
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = (
-        'username',
         'first_name',
         'last_name',
         'password'

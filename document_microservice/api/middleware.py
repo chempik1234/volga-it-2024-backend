@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.utils.deprecation import MiddlewareMixin
 
 from .rabbit_mq import send_request_rabbit_mq, consume_with_rabbit_mq, auth_queue_request, \

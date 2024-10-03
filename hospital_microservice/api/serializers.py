@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db import transaction
 
-from hospital_microservice.api.models import Hospital, Room
+from .models import Hospital, Room
 
 
 class RoomSerializer(serializers.ModelSerializer):

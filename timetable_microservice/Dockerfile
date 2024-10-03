@@ -13,8 +13,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY . .
 
-EXPOSE 8081
+EXPOSE 8083
 
 CMD ["python", "manage.py", "makemigrations", "--noinput"]
 CMD ["python", "manage.py", "migrate", "--noinput"]
-CMD ["gunicorn", "account_microservice.wsgi", "--bind=0.0.0.0:8081"]
+CMD ["gunicorn", "timetable_microservice.wsgi", "--bind=0.0.0.0:8083"]

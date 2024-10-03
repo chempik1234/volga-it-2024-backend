@@ -1,9 +1,8 @@
 import json
 
-from django.conf import settings
 from django.utils.deprecation import MiddlewareMixin
 
-from timetable_microservice.api.rabbit_mq import send_request_rabbit_mq, consume_with_rabbit_mq, auth_queue_request, \
+from .rabbit_mq import send_request_rabbit_mq, consume_with_rabbit_mq, auth_queue_request, \
     auth_queue_response
 
 

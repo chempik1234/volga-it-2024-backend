@@ -8,9 +8,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from timetable_microservice.api.models import Appointment, Timetable
-from timetable_microservice.api.permissions import IsAdminOrManagerWithRole
-from timetable_microservice.api.serializers import TimetableSerializer, AppointmentSerializer
+from .models import Appointment, Timetable
+from .permissions import IsAdminOrManagerWithRole
+from .serializers import TimetableSerializer, AppointmentSerializer
 
 
 class CreateTimetableView(CreateAPIView):
@@ -20,8 +20,8 @@ class CreateTimetableView(CreateAPIView):
     """
     permission_classes = [IsAdminOrManagerWithRole,]
     serializer_class = TimetableSerializer
-    http_method_names = ["POST"]
-    allowed_methods = ["POST"]
+    http_method_names = ["post"]
+    allowed_methods = ["post"]
 
 
 class TimetablePutDeleteViewSet(RetrieveUpdateDestroyAPIView):
@@ -31,8 +31,8 @@ class TimetablePutDeleteViewSet(RetrieveUpdateDestroyAPIView):
     """
     permission_classes = [IsAdminOrManagerWithRole,]
     serializer_class = TimetableSerializer
-    http_method_names = ["PUT", "DELETE"]
-    allowed_methods = ["PUT", "DELETE"]
+    http_method_names = ["put", "delete"]
+    allowed_methods = ["put", "delete"]
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -51,8 +51,8 @@ class DeleteTimetablesByDoctorView(DestroyAPIView):
     """
     permission_classes = [IsAdminOrManagerWithRole,]
     serializer_class = TimetableSerializer
-    http_method_names = ["DELETE"]
-    allowed_methods = ["DELETE"]
+    http_method_names = ["delete"]
+    allowed_methods = ["delete"]
 
     def delete(self, request, id):
         # id isn't the PK, it's the doctor_id!
@@ -67,8 +67,8 @@ class DeleteTimetablesByHospitalView(DestroyAPIView):
     """
     permission_classes = [IsAdminOrManagerWithRole,]
     serializer_class = TimetableSerializer
-    http_method_names = ["DELETE"]
-    allowed_methods = ["DELETE"]
+    http_method_names = ["delete"]
+    allowed_methods = ["delete"]
 
     def delete(self, request, id):
         # id isn't the PK, it's the hospital_id!
@@ -83,8 +83,8 @@ class GetTimeTablesByHospitalInPeriodView(ListAPIView):
     """
     permission_classes = [IsAuthenticated,]
     serializer_class = TimetableSerializer
-    http_method_names = ["GET"]
-    allowed_methods = ["GET"]
+    http_method_names = ["get"]
+    allowed_methods = ["get"]
 
     def get_queryset(self):  # these params are not required, they're just infinitely little/big by default!
         time_from_param = datetime.fromisoformat(self.request.query_params.get("from", "1970-01-01T00:00:00Z"))
@@ -101,8 +101,8 @@ class GetTimeTablesByDoctorInPeriodView(ListAPIView):
     """
     permission_classes = [IsAuthenticated,]
     serializer_class = TimetableSerializer
-    http_method_names = ["GET"]
-    allowed_methods = ["GET"]
+    http_method_names = ["get"]
+    allowed_methods = ["get"]
 
     def get_queryset(self):  # these params are not required, they're just infinitely little/big by default!
         time_from_param = datetime.fromisoformat(self.request.query_params.get("from", "1970-01-01T00:00:00Z"))
@@ -119,8 +119,8 @@ class GetTimetablesByHospitalRoomInPeriodView(ListAPIView):
     """
     permission_classes = [IsAuthenticated,]
     serializer_class = TimetableSerializer
-    http_method_names = ["GET"]
-    allowed_methods = ["GET"]
+    http_method_names = ["get"]
+    allowed_methods = ["get"]
 
     def get_queryset(self):  # these params are not required, they're just infinitely little/big by default!
         time_from_param = datetime.fromisoformat(self.request.query_params.get("from", "1970-01-01T00:00:00Z"))
@@ -140,8 +140,8 @@ class GetCreateAppointmentsByTimetableViewSet(APIView):
     POST /api/Timetable/{id}/Appointments
     """
     permission_classes = [IsAuthenticated,]
-    http_method_names = ["GET", "POST"]
-    allowed_methods = ["GET", "POST"]
+    http_method_names = ["get", "post"]
+    allowed_methods = ["get", "post"]
 
     def get(self, request):
         timetable_id = self.kwargs.get("id")
@@ -186,8 +186,8 @@ class DeleteAppointmentView(DestroyAPIView):
     DELETE /api/Appointment/{id}
     """
     permission_classes = [IsAuthenticated]
-    http_method_names = ["DELETE"]
-    allowed_methods = ["DELETE"]
+    http_method_names = ["delete"]
+    allowed_methods = ["delete"]
     serializer_class = AppointmentSerializer
 
     def destroy(self, request, *args, **kwargs):

@@ -6,7 +6,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from account_microservice.api.serializers import CustomUserSerializer
+from ..serializers import CustomUserSerializer
 
 User = get_user_model()
 
@@ -18,8 +18,8 @@ class DoctorsListView(ListAPIView):
     """
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticated,]
-    http_method_names = ['GET']
-    allowed_methods = ["GET"]
+    http_method_names = ["get"]
+    allowed_methods = ["get"]
 
     def get_queryset(self):  # from and count affect the queryset, so it's regenerated with every query
         from_index = int(self.request.query_params.get('from', 0))  # no one said if params are required
@@ -43,8 +43,8 @@ class DoctorByIdView(RetrieveAPIView):
     serializer_class = CustomUserSerializer
     queryset = User.objects.filter(roles__name="Doctor")
     permission_classes = [IsAuthenticated,]
-    http_method_names = ['GET']
-    allowed_methods = ["GET"]
+    http_method_names = ["get"]
+    allowed_methods = ["get"]
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()  # get the doctor by id that is retrieved automatically

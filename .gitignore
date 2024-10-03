@@ -6,3 +6,4 @@
 /env/django_secrets_hospital.env
 /env/django_secrets_timetable.env
 /env/django_secrets_document.env
+/requirements.txt

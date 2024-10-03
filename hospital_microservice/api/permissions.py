@@ -10,3 +10,17 @@ class IsAdminUserWithRole(permissions.BasePermission):
         if hasattr(request.user, 'roles'):  # user must have roles attribute which presents the role names list
             return "Admin" in request.user["roles"]
         return False
+
+
+class IsAdminOrAuthenticatedAndGET(permissions.BasePermission):
+    """
+    Permission that allows you to reach the endpoint if one of these conditions is True:
+
+    - you're an admin
+    - you're authenticated and the HTTP method is GET
+    """
+    def has_permission(self, request, view):
+        if request.user and request.method == "GET" or \
+                hasattr(request.user, 'roles') and "Admin" in request.user["roles"]:
+            return True
+        return False

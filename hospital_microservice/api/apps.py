@@ -2,10 +2,7 @@ import json
 
 from django.apps import AppConfig
 
-from hospital_microservice.api.models import Hospital, Room
-from hospital_microservice.api.rabbit_mq import start_consuming_with_rabbit_mq, hospital_and_maybe_room_queue_request, \
-    doctor_queue_request, send_request_rabbit_mq, hospital_and_maybe_room_queue_response
-from hospital_microservice.api.serializers import HospitalSerializer, RoomSerializer
+import multiprocessing
 
 
 class ApiConfig(AppConfig):
@@ -15,6 +12,10 @@ class ApiConfig(AppConfig):
     def ready(self):
         from . import signals  # signals in this project are made for performing auto-caching and cleaning cache
         # and also CASCADE on delete, there're linked models in timetable_microservice!
+        from .models import Hospital, Room
+        from .rabbit_mq import start_consuming_with_rabbit_mq, hospital_and_maybe_room_queue_request, \
+            role_queue_request, send_request_rabbit_mq, hospital_and_maybe_room_queue_response
+        from .serializers import HospitalSerializer, RoomSerializer
 
         def data_process_function(data):
             """
@@ -41,4 +42,7 @@ class ApiConfig(AppConfig):
                         data["room"] = RoomSerializer(room_with_given_params).data
             return data, hospital_and_maybe_room_queue_response
 
-        start_consuming_with_rabbit_mq(hospital_and_maybe_room_queue_request, data_process_function)
+        p = multiprocessing.Process(target=start_consuming_with_rabbit_mq, args=(hospital_and_maybe_room_queue_request,
+                                                                                 data_process_function))
+        p.start()
+        p.join()

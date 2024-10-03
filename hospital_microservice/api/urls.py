@@ -1,19 +1,15 @@
-from xml.etree.ElementInclude import include
-
 from django.urls import path
-from rest_framework.routers import DefaultRouter
 
-from views import HospitalsViewSet, HospitalRoomsListView
+from .views import HospitalsViewSet, HospitalRoomsListView
 
-router = DefaultRouter()
-router.register('Hospitals', HospitalsViewSet.as_view({"get": "hospitals"}),
-                basename="hospitals")  # /api/Hospitals
-router.register('Hospitals/<int:id>', HospitalsViewSet.as_view({"get": "retrieve",
-                                                                "post": "create", "put": "update",
-                                                                "delete": "destroy"}),
-                basename="hospitals")  # /api/Hospitals/{id}
-router.register('Hospitals/<int:id>/Rooms', HospitalRoomsListView.as_view())
+app_name = "api"
 
 urlpatterns = [
-    path("", include(router.urls))
+    path('Hospitals', HospitalsViewSet.as_view({"get": "hospitals"}), name="hospitals"),    # /api/Hospitals
+    path('Hospitals/<int:id>', HospitalsViewSet.as_view({"get": "retrieve",                 # /api/Hospitals/{id}
+                                                         "post": "create", "put": "update",
+                                                         "delete": "destroy"}),
+         name="hospitals"),
+    path('Hospitals/<int:id>/Rooms', HospitalRoomsListView.as_view(),                       # /api/Hospitals/{id}/Rooms
+         name="rooms_by_hospital")
 ]

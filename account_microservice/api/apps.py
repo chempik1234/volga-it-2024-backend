@@ -1,14 +1,6 @@
+import multiprocessing
+
 from django.apps import AppConfig
-from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.tokens import AccessToken
-
-from account_microservice.api.rabbit_mq import start_consuming_with_rabbit_mq, auth_queue_request, doctor_queue_request, \
-    doctor_queue_response, auth_queue_response
-from account_microservice.api.serializers import CustomUserSerializerWithRoles
-
-
-User = get_user_model()
 
 
 class ApiConfig(AppConfig):
@@ -16,7 +8,16 @@ class ApiConfig(AppConfig):
     name = 'api'
 
     def ready(self):
+        print("API STARTED")
         from . import signals  # signals in this project are made for performing auto-caching and cleaning cache
+        from rest_framework_simplejwt.exceptions import TokenError
+        from rest_framework_simplejwt.tokens import AccessToken
+        from .rabbit_mq import start_consuming_with_rabbit_mq, auth_queue_request, role_queue_request, \
+            role_queue_response, auth_queue_response
+        from .serializers import CustomUserSerializerWithRoles
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
 
         def data_process_function_jwt_queue(data):
             """
@@ -38,16 +39,23 @@ class ApiConfig(AppConfig):
                     }                                # user data is None
             return message, auth_queue_response
 
-        def data_process_function_doctor_queue(data):
+        def data_process_function_role_queue(data):
             """
             Function to process data from RabbitMQ request.
-            Gets the doctorId and then returns is with serialized doctor data if it's valid
+            Gets the user id and then returns is with serialized user data if he has the required 'role': str
             """
-            if data.get("doctor_id", None):  # if it's a doctorId validation queue, then we try to find it among Users
-                doctor_with_given_id = User.objects.filter(id=int(data.get("doctor_id")), roles__name="Doctor")
+            if data.get("user_id", None):  # if it's a doctorId validation queue, then we try to find it among Users
+                doctor_with_given_id = User.objects.filter(id=int(data.get("user_id")))
+                if data.get('role', None):
+                    doctor_with_given_id = doctor_with_given_id.filter(roles__name=data.get('role'))
                 if doctor_with_given_id.exists():  # if the doctor exists, we must return his data
-                    data["doctor"] = CustomUserSerializerWithRoles(doctor_with_given_id.first()).data
-            return data, doctor_queue_response
+                    data["user"] = CustomUserSerializerWithRoles(doctor_with_given_id.first()).data
+            return data, role_queue_response
 
-        start_consuming_with_rabbit_mq(doctor_queue_request, data_process_function_doctor_queue)
-        start_consuming_with_rabbit_mq(auth_queue_request, data_process_function_jwt_queue)
+        processes = [multiprocessing.Process(target=start_consuming_with_rabbit_mq,
+                                             args=(role_queue_request, data_process_function_role_queue)),
+                     multiprocessing.Process(target=start_consuming_with_rabbit_mq,
+                                             args=(auth_queue_request, data_process_function_jwt_queue))]
+        for i in processes:
+            i.start()
+            i.join()

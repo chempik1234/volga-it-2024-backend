@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
 
-from account_microservice.api.models import Role
+from .models import Role
 
 User = get_user_model()
 
@@ -21,7 +21,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
-        fields = ('id', 'firstName', 'lastName', 'username',)
+        fields = ('id', 'firstName', 'lastName', 'username', "password")
         model = User
 
     def create(self, validated_data):
@@ -41,7 +41,7 @@ class CustomUserSerializerWithRoles(CustomUserSerializer):
     # serializers.ListField(child=serializers.CharField())
 
     class Meta:
-        fields = ('id', 'firstName', 'lastName', 'username', "roles",)
+        fields = ('id', 'firstName', 'lastName', 'username', "roles", "password")
         model = User
 
     def create(self, validated_data):
@@ -77,3 +77,11 @@ class CustomUserSerializerWithRoles(CustomUserSerializer):
                     role.delete()  # role isn't in the list and is used only here
         return instance
 
+
+class SignOutSerializer(serializers.Serializer):
+    def to_representation(self, instance):
+        return {"details": "signed out successfully"}
+
+    @property
+    def data(self):
+        return {"details": "signed out successfully"}

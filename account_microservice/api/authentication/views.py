@@ -2,24 +2,24 @@ import json
 
 from django.contrib.auth import get_user_model, logout
 from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from account_microservice.api.serializers import CustomUserSerializer
+from ..serializers import CustomUserSerializer, SignOutSerializer
 
 User = get_user_model()
 
 
-class SignUpView(APIView):
+class SignUpView(GenericAPIView):
     """
     An endpoint for creating new users
     POST /api/Authentication/SignUp
     """
-    allowed_methods = ["POST"]
-    http_method_names = ["POST"]
+    allowed_methods = ["post",]
+    http_method_names = ["post",]
     permission_classes = (AllowAny,)
     serializer_class = CustomUserSerializer
     queryset = User.objects.all()
@@ -50,13 +50,13 @@ class SignUpView(APIView):
         return Response(self.serializer_class(new_user).data, status=status.HTTP_201_CREATED)
 
 
-class SignInView(APIView):
+class SignInView(GenericAPIView):
     """
     An endpoint for signing users in via giving them their JWT pairs
     POST /api/Authentication/SignIn
     """
-    allowed_methods = ["POST"]
-    http_method_names = ["POST"]
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
     permission_classes = (AllowAny,)
     serializer_class = TokenObtainPairSerializer
 
@@ -82,15 +82,19 @@ class SignInView(APIView):
             return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class SignOutView(APIView):
+class SignOutView(GenericAPIView):
     """
     An endpoint for signing users out via built-in django logout (REST API can't log them out itself, the client does)
     POST /api/Authentication/SignOut
     """
-    allowed_methods = ["POST"]
-    http_method_names = ["POST"]
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
     permission_classes = [IsAuthenticated,]
+    serializer_class = SignOutSerializer
+
+    def get_serializer_class(self):
+        return self.serializer_class
 
     def post(self, request: Request) -> Response:
         logout(request)
-        return Response({"details": "signed out successfully"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(self.get_serializer_class().data, status=status.HTTP_204_NO_CONTENT)

@@ -4,12 +4,13 @@ from django.conf import settings
 from threading import Event
 from queue import Queue
 
+# TODO: timetable microservice rabbit mq request timeout
 auth_queue_request = settings.AUTH_QUEUE_REQUEST  # Used in outer calls, not linked to send/consume functions
 auth_queue_response = settings.AUTH_QUEUE_RESPONSE
-hospital_and_maybe_room_queue_request = settings.HOSPITAL_AND_MAYBE_ROOM_REQUEST
-hospital_and_maybe_room_queue_response = settings.HOSPITAL_AND_MAYBE_ROOM_RESPONSE
-doctor_queue_request = settings.DOCTOR_QUEUE_REQUEST
-doctor_queue_response = settings.DOCTOR_QUEUE_RESPONSE
+hospital_and_maybe_room_queue_request = settings.HOSPITAL_AND_MAYBE_ROOM_QUEUE_REQUEST
+hospital_and_maybe_room_queue_response = settings.HOSPITAL_AND_MAYBE_ROOM_QUEUE_RESPONSE
+role_queue_request = settings.ROLE_QUEUE_REQUEST
+role_queue_response = settings.ROLE_QUEUE_RESPONSE
 
 connection = None  # it will change during the first query/response, check the connect_to_rabbit_mq function
 

@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from timetable_microservice.api.models import Timetable, Appointment
-from timetable_microservice.api.rabbit_mq import send_request_rabbit_mq, hospital_and_maybe_room_queue_request, \
-    consume_with_rabbit_mq, hospital_and_maybe_room_queue_response, doctor_queue_request, doctor_queue_response
+from .models import Timetable, Appointment
+from .rabbit_mq import send_request_rabbit_mq, hospital_and_maybe_room_queue_request, \
+    consume_with_rabbit_mq, hospital_and_maybe_room_queue_response, role_queue_request, role_queue_response
 
 
 class TimetableSerializer(serializers.ModelSerializer):
@@ -33,16 +33,20 @@ class TimetableSerializer(serializers.ModelSerializer):
             hospital_and_maybe_room_queue_response, lambda x: (x.get('hospital_id', '') == value))
         if response.get('hospital', None):
             return value
+        else:
+            raise ValidationError("hospital id couldn't be validated!")
 
     def validate_doctorId(self, value):
         """
         doctorId "object exists" validator that uses sync RabbitMq request-response (senseless but cool!)
+
+        - checks role Doctor
         """
-        message = {"doctor_id": value}
-        send_request_rabbit_mq(doctor_queue_request, json.dumps(message))  # 1) send validation request
+        message = {"user_id": value, 'role': 'Doctor'}
+        send_request_rabbit_mq(role_queue_request, json.dumps(message))  # 1) send validation request
         response = consume_with_rabbit_mq(  # 2) get response with hospital info
-            doctor_queue_response, lambda x: (x.get('doctor_id', '') == value))
-        if response.get('doctor', None):
+            role_queue_response, lambda x: (x.get('user_id', '') == value))
+        if response.get('user', None):
             return value
 
     # def validate_room(self, value):  # TODO: delete if everything works

@@ -5,9 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from account_microservice.api.permissions import IsAdminOrAuthenticatedAndGET
-from hospital_microservice.api.models import Hospital
-from hospital_microservice.api.serializers import HospitalSerializer, RoomSerializer
+from .permissions import IsAdminOrAuthenticatedAndGET
+from .models import Hospital
+from .serializers import HospitalSerializer, RoomSerializer
 
 
 class HospitalsViewSet(ModelViewSet):
@@ -18,7 +18,7 @@ class HospitalsViewSet(ModelViewSet):
     serializer_class = HospitalSerializer
     permission_classes = [IsAdminOrAuthenticatedAndGET,]
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=["get"])
     def hospitals(self, request):
         """
         Hospitals list endpoint (from and count are query params, they limit the performed selection)
@@ -37,8 +37,8 @@ class HospitalRoomsListView(ListAPIView):
     GET /api/Hospitals/{id}/Rooms
     """
     permission_classes = [IsAuthenticated]
-    allowed_methods = ["GET"]
-    http_method_names = ['GET']
+    allowed_methods = ["get"]
+    http_method_names = ["get"]
     serializer_class = RoomSerializer
 
     def get_queryset(self):

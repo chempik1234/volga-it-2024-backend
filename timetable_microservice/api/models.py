@@ -31,7 +31,7 @@ class Timetable(models.Model):
         blank=False,
         unique=False
     )
-    room = models.IntegerField(
+    room = models.CharField(
         verbose_name="Название кабинета",  # not the id, cause 1) that's easier
         null=False,                                          # 2) it's still unique for the room (with hospital_id)
         blank=False,

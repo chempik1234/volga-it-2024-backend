@@ -3,38 +3,40 @@ import json
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
-from account_microservice.api.permissions import IsAdminUserWithRole
-from account_microservice.api.serializers import CustomUserSerializer, CustomUserSerializerWithRoles
+from ..permissions import IsAdminUserWithRole
+from ..serializers import CustomUserSerializer, CustomUserSerializerWithRoles
 
 User = get_user_model()
 
 
-class MeView(APIView):
+class MeView(GenericAPIView):
     """
     Current account details endpoint
     GET /api/Accounts/Me
     """
     permission_classes = [IsAuthenticated,]
-    http_method_names = ['GET']
-    allowed_methods = ["GET"]
+    http_method_names = ["get"]
+    allowed_methods = ["get"]
+    serializer_class = CustomUserSerializer
 
     def get(self, request):
-        return Response(CustomUserSerializer(request.user).data, status=status.HTTP_200_OK)
+        return Response(self.serializer_class(request.user).data, status=status.HTTP_200_OK)
 
 
-class UpdateAccountView(APIView):
+class UpdateAccountView(GenericAPIView):
     """
     Current account update endpoint
     PUT /api/Accounts/Update
     """
     permission_classes = [IsAuthenticated,]
-    http_method_names = ['PUT']
-    allowed_methods = ["PUT"]
+    http_method_names = ['put']
+    allowed_methods = ["put"]
+    serializer_class = CustomUserSerializer
 
     def put(self, request):
         put_ = request.data  # no need to decode the data
@@ -46,7 +48,7 @@ class UpdateAccountView(APIView):
 
         data = {"lastName": last_name, "firstName": first_name, "password": password}  # new user data
 
-        serializer = CustomUserSerializer(request.user, data=data, partial=True)  # partial update
+        serializer = self.serializer_class(request.user, data=data, partial=True)  # partial update
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -61,6 +63,7 @@ class AdminAccountsViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializerWithRoles
     permission_classes = [IsAdminUserWithRole,]
+    serializer_class = CustomUserSerializer
 
     @action(detail=False, methods=['get'])
     def accounts(self, request):
@@ -71,7 +74,7 @@ class AdminAccountsViewSet(ModelViewSet):
         from_ = int(request.query_params.get('from', 0))
         count = int(request.query_params.get('count', 10))
         accounts = User.objects.all()[from_:from_ + count]
-        serializer = CustomUserSerializer(accounts, many=True)
+        serializer = self.serializer_class(accounts, many=True)
         return Response(serializer.data)
 
     # TODO: clear commented code if everything works
