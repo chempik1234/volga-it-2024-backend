@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
@@ -7,10 +8,17 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(name='accessToken', description='Access Token as it is', type=str),
+        ]
+    )
+)
 class CustomTokenVerifyView(GenericAPIView):
     """
     An endpoint for token validation, simply returns: { valid: bool }
-    GET /api/Authentication/Validate
+    GET /api/Authentication/Validate ?accessToken=
     """
     allowed_methods = ["get"]
     http_method_names = ["get"]
@@ -32,7 +40,7 @@ class CustomTokenRefreshView(TokenRefreshView):
     POST /api/Authentication/Refresh
     """
     def post(self, request: Request, *args, **kwargs) -> Response:
-        refresh_token = request.body.get('refreshToken')  # get the token from request body
+        refresh_token = request.data.get('refreshToken')  # get the token from request body
         if not refresh_token:  # it's required, so ERROR 400 is thrown if absent
             return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
         request._body = f"refresh={refresh_token}".encode()  # rename according to library standard

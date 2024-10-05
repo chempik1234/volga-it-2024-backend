@@ -15,6 +15,4 @@ COPY . .
 
 EXPOSE 8081
 
-CMD ["python", "manage.py", "makemigrations", "--noinput"]
-CMD ["python", "manage.py", "migrate", "--noinput"]
-CMD ["gunicorn", "account_microservice.wsgi", "--bind=0.0.0.0:8081"]
+ENTRYPOINT ["sh", "./startup.sh"]

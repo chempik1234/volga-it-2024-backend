@@ -1,6 +1,8 @@
 import json
 
 from django.contrib.auth import get_user_model
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
@@ -37,6 +39,7 @@ class UpdateAccountView(GenericAPIView):
     http_method_names = ['put']
     allowed_methods = ["put"]
     serializer_class = CustomUserSerializer
+    lookup_field = "id"
 
     def put(self, request):
         put_ = request.data  # no need to decode the data
@@ -56,6 +59,16 @@ class UpdateAccountView(GenericAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema_view(
+    accounts=extend_schema(
+        parameters=[
+            OpenApiParameter(name='from', description='Selection start (not by id!)',
+                             type=OpenApiTypes.INT, location=OpenApiParameter.QUERY),
+            OpenApiParameter(name='count', description='How many users to return?',
+                             type=OpenApiTypes.INT, location=OpenApiParameter.QUERY),
+        ]
+    )
+)
 class AdminAccountsViewSet(ModelViewSet):
     """
     ViewSet for admin accounts CRUD with roles creation support
@@ -63,51 +76,53 @@ class AdminAccountsViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializerWithRoles
     permission_classes = [IsAdminUserWithRole,]
-    serializer_class = CustomUserSerializer
+    lookup_field = "id"
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], name="accounts")
     def accounts(self, request):
         """
         Accounts list endpoint (from and count are query params, they limit the performed selection)
+
         GET /api/Accounts ?from &count
         """
-        from_ = int(request.query_params.get('from', 0))
-        count = int(request.query_params.get('count', 10))
-        accounts = User.objects.all()[from_:from_ + count]
-        serializer = self.serializer_class(accounts, many=True)
-        return Response(serializer.data)
+        from_ = request.query_params.get('from', None)
+        count = request.query_params.get('count', None)
+        accounts = User.objects.all()
 
-    # TODO: clear commented code if everything works
-    # def create(self, request, args, kwargs):
-    #     """
-    #     The endpoint for creating User with roles (special body format requires the orverriding of create() method)
-    #     POST /api/Accounts
-    #     """
-    #     try:  # json body needs to be decoded, but if it contains syntax errors, an exception occures
-    #         body_unicode = request.body.decode('utf-8')
-    #         post_ = json.loads(body_unicode)
-    #     except json.JSONDecodeError:
-    #         return Response({"error": "Invalid JSON format"}, status=status.HTTP_400_BAD_REQUEST)
-    #     except Exception as e:
-    #         return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    #
-    #     serializer = self.get_serializer(data=post_)
-    #     serializer.is_valid(raise_exception=True)
-    #
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-    #
-    # def update(self, request, args, kwargs):
-    #     """
-    #     The endpoint for updating User with roles (special body format requires the orverriding of update() method)
-    #     PUT /api/Accounts/{id}
-    #     """
-    #     put_ = request.data
-    #
-    #     serializer = self.get_serializer(data=put_)
-    #     serializer.is_valid(raise_exception=True)
-    #
-    #     self.perform_update(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        errors = []
+
+        if from_ is not None:
+            from_ = int(from_)
+            if from_ < 0:
+                errors.append({"from": "from parameter must be either None or non-negative!"})
+            else:
+                accounts = accounts[int(from_):]
+        if count is not None:
+            count = int(count)
+            if count < 0:
+                errors.append({"count": "count parameter must be either None or non-negative!"})
+            else:
+                accounts = accounts[: int(count)]
+        if not errors:
+            serializer = self.serializer_class(accounts, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    def create(self, request, *args, **kwargs):
+        """
+        The endpoint for creating User with roles (special body format requires the orverriding of create() method)
+        POST /api/Accounts
+        """
+        put_ = request.data
+        request.data.update({"roles": [{"name": i} for i in put_.pop('roles', [])]})
+        return super().create(request, args, kwargs)
+
+    def update(self, request, *args, **kwargs):
+        """
+        The endpoint for updating User with roles (special body format requires the orverriding of update() method)
+        PUT /api/Accounts/{id}
+        """
+        put_ = request.data
+        request.data.update({"roles": [{"name": i} for i in put_.pop('roles', [])]})
+        return super().update(request, args, kwargs)

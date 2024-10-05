@@ -1,4 +1,5 @@
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import UserManager, AbstractUser, PermissionsMixin
 from django.core.validators import MinLengthValidator
 from django.db import models
 
@@ -22,6 +23,8 @@ class CustomUser(AbstractBaseUser):
     Custom user model with username, last and first name and hashed password. Also has roles list that allows to check
     if he's a doctor or maybe an admin (is_staff & is_superuser goes to play roblox)
     """
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     username = models.CharField(
         verbose_name='Никнейм',
@@ -32,7 +35,7 @@ class CustomUser(AbstractBaseUser):
         validators=[MinLengthValidator(1)]
     )
 
-    last_name = models.SlugField(
+    last_name = models.CharField(
         verbose_name='Фамилия',
         max_length=50,
         unique=False,
@@ -41,7 +44,7 @@ class CustomUser(AbstractBaseUser):
         validators=[MinLengthValidator(1)]
     )
 
-    first_name = models.SlugField(
+    first_name = models.CharField(
         verbose_name='Имя',
         max_length=50,
         unique=False,
@@ -53,8 +56,7 @@ class CustomUser(AbstractBaseUser):
     roles = models.ManyToManyField(
         Role,
         verbose_name="Роли",
-        related_name="users",
-        null=True
+        related_name="users"
     )
 
     USERNAME_FIELD = 'username'
@@ -63,6 +65,8 @@ class CustomUser(AbstractBaseUser):
         'last_name',
         'password'
     )
+
+    objects = UserManager()
 
     class Meta:
         verbose_name = 'Пользователь'

@@ -8,7 +8,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from ..serializers import CustomUserSerializer, SignOutSerializer
+from ..serializers import CustomUserSerializer, SignOutSerializer, CustomTokenObtainPairSerializer
 
 User = get_user_model()
 
@@ -58,24 +58,17 @@ class SignInView(GenericAPIView):
     allowed_methods = ["post"]
     http_method_names = ["post"]
     permission_classes = (AllowAny,)
-    serializer_class = TokenObtainPairSerializer
+    serializer_class = CustomTokenObtainPairSerializer
 
     def post(self, request: Request) -> Response:
-        # try:  # json body needs to be decoded, but if it contains syntax errors, an exception occures
-        #     body_unicode = request.body.decode('utf-8')
-        #     post_ = json.loads(body_unicode)
-        # except json.JSONDecodeError:
-        #     return Response({"error": "Invalid JSON format"}, status=status.HTTP_400_BAD_REQUEST)
-        # except Exception as e:
-        #     return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        post_ = request.data  # TODO: remove if deecoding works
+        post_ = request.data
 
         username, password = post_.get('username'), post_.get('password')
         if not (username and password):  # these are required fields, ERROR 400 if absent
             return Response({"details": "username and password are required in body"},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = self.serializer_class({"username": username, "password": password})
+        serializer = self.serializer_class(data={"username": username, "password": password})
         if serializer.is_valid():  # A rest_framework serializer can automatically check the credentials
             return Response(serializer.validated_data, status=status.HTTP_200_OK)  # if it does, it returns 2 tokens
         else:  # if not - the user gets an errors list!
@@ -97,4 +90,4 @@ class SignOutView(GenericAPIView):
 
     def post(self, request: Request) -> Response:
         logout(request)
-        return Response(self.get_serializer_class().data, status=status.HTTP_204_NO_CONTENT)
+        return Response(self.serializer_class().data, status=status.HTTP_200_OK)

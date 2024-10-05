@@ -15,6 +15,4 @@ COPY . .
 
 EXPOSE 8082
 
-CMD ["python", "manage.py", "makemigrations", "--noinput"]
-CMD ["python", "manage.py", "migrate", "--noinput"]
-CMD ["gunicorn", "hospital_microservice.wsgi", "--bind=0.0.0.0:8082"]
+ENTRYPOINT ["sh", "startup.sh"]

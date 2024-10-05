@@ -15,6 +15,4 @@ COPY . .
 
 EXPOSE 8083
 
-CMD ["python", "manage.py", "makemigrations", "--noinput"]
-CMD ["python", "manage.py", "migrate", "--noinput"]
-CMD ["gunicorn", "timetable_microservice.wsgi", "--bind=0.0.0.0:8083"]
+ENTRYPOINT ["sh", "./startup.sh"]

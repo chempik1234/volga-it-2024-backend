@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import Role
 
@@ -8,10 +10,18 @@ User = get_user_model()
 
 
 class RoleSerializer(serializers.ModelSerializer):
+    name = serializers.CharField()
+
     class Meta:
         fields = ("name",)
-        lookup_field = "name"
         model = Role
+
+    def validate_name(self, value):
+        print("validate role name !", value)
+        return value
+
+    def to_representation(self, instance):
+        return instance.name
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -29,16 +39,30 @@ class CustomUserSerializer(serializers.ModelSerializer):
         This creation method creates and returns only the user
         :return: created user
         """
-        user = User(**validated_data)
-        user.set_password(validated_data['password'])  # Hashed password
-        user.save()  # no need for transaction
-        return user
+        with transaction.atomic():
+            password = validated_data['password']  # not popping to let django use raw value
+            user = super().create(validated_data)
+            user.set_password(password)
+            user.save()
+
+    def update(self, instance, validated_data):
+        """
+        This creation method updates and returns only the user
+        :return: updated user
+        """
+        with transaction.atomic():
+            password = validated_data['password']  # not popping to let django use raw value
+            instance = super().update(instance, validated_data)
+            instance.set_password(password)  # paste hashed password
+            instance.save()
 
 
 class CustomUserSerializerWithRoles(CustomUserSerializer):
     """CustomUser serializer with roles support, for admin functions."""
-    roles = RoleSerializer(many=True, required=False)  # TODO: check how roles work
-    # serializers.ListField(child=serializers.CharField())
+    roles = RoleSerializer(many=True)
+
+    # def get_roles(self, obj):
+    #     return obj.roles.values_list("name", flat=True)
 
     class Meta:
         fields = ('id', 'firstName', 'lastName', 'username', "roles", "password")
@@ -50,6 +74,8 @@ class CustomUserSerializerWithRoles(CustomUserSerializer):
         :return: created user
         """
         roles = validated_data.pop("roles", [])  # roles are assigned with get_or_create + M2M role.users.add(...
+        # [{name: str}, ]
+        roles = [i["name"] for i in roles]
 
         new_user = super().create(validated_data)  # CustomUser fields remain in validated_data
 
@@ -61,9 +87,13 @@ class CustomUserSerializerWithRoles(CustomUserSerializer):
     def update(self, instance, validated_data):
         """
         This creation updates both user and roles (if needed) in 1 transaction
+
+        Prunes roles
         :return: updated user
         """
         roles = validated_data.pop("roles", [])  # roles are assigned with get_or_create, old ones are pruned!
+        # [{name: str}, ]
+        roles = [i["name"] for i in roles]
 
         with transaction.atomic():
             super().update(instance, validated_data)  # update the rest data
@@ -73,8 +103,10 @@ class CustomUserSerializerWithRoles(CustomUserSerializer):
                 instance.roles.add(new_role)  # after the user is created, roles can be assigned.
 
             for role in instance.roles.all():  # prune roles
-                if role.name not in roles and role.users.all().count() == 1:
-                    role.delete()  # role isn't in the list and is used only here
+                if role.name not in roles:
+                    instance.roles.remove(role)  # remove unused roles
+                    if role.users.all().count() == 0:
+                        role.delete()  # role isn't in the list and is used only here
         return instance
 
 
@@ -82,6 +114,21 @@ class SignOutSerializer(serializers.Serializer):
     def to_representation(self, instance):
         return {"details": "signed out successfully"}
 
-    @property
-    def data(self):
+    def to_internal_value(self, data):
         return {"details": "signed out successfully"}
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Custom serializer for obtaining a pair of tokens for a user based on username and password.
+    """
+
+    def validate(self, attrs):
+        """
+        Override validate method to return access and refresh tokens.
+        """
+        data = super().validate(attrs)
+        refresh = self.get_token(self.user)
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+        return data

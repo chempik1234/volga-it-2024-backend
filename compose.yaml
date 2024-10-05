@@ -1,6 +1,34 @@
 version: '3.8'
 
 services:
+
+  # igration:
+  #  build:
+  #    context: .
+  #    dockerfile:
+  #  command: ["sh", "-c", "docker exec -it account_microservice_1 bash -c \
+  #                                      'python manage.py makemigrations --noinput' && \
+  #                         docker exec -it account_microservice_1 bash -c \
+  #                                      'python manage.py migrate --noinput' \
+  #                         docker exec -it hospital_microservice_1 bash -c \
+  #                                      'python manage.py makemigrations --noinput' && \
+  #                         docker exec -it hospital_microservice_1 bash -c \
+  #                                      'python manage.py migrate --noinput' \
+  #                         docker exec -it timetable_microservice_1 bash -c \
+  #                                      'python manage.py makemigrations --noinput' \
+  #                         docker exec -it timetable_microservice_1 bash -c \
+  #                                      'python manage.py migrate --noinput' \
+  #                         docker exec -it document_microservice_1 bash -c \
+  #                                      'python manage.py makemigrations --noinput' \
+  #                         docker exec -it document_microservice_1 bash -c \
+  #                                      'python manage.py migrate --noinput'"
+  #  ]
+  #  depends_on:
+  #    - account_microservice
+  #    - hospital_microservice
+  #    - timetable_microservice
+  #    - document_microservice
+
   account_microservice:
     build:
       context: ./account_microservice/

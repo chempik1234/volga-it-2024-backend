@@ -57,12 +57,22 @@ class VisitByIdView(RetrieveAPIView):
         return self.get_object()
 
 
-class VisitPostPutView(CreateAPIView, UpdateAPIView):
+class VisitCreateView(CreateAPIView):
     """
-    Admin/manager endpoint for creating/updating Visit objects.
+    Admin/manager endpoint for creating Visit objects.
     """
-    http_method_names = ["post", "put"]
-    allowed_methods = ["post", "put"]
+    http_method_names = ["post"]
+    allowed_methods = ["post"]
+    permission_classes = [IsAdminOrManagerWithRole,]
+    serializer_class = VisitSerializer
+
+
+class VisitUpdateView(UpdateAPIView):
+    """
+    Admin/manager endpoint for updating Visit objects.
+    """
+    http_method_names = ["put"]
+    allowed_methods = ["put"]
     permission_classes = [IsAdminOrManagerWithRole,]
     serializer_class = VisitSerializer
 

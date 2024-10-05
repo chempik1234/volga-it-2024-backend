@@ -45,6 +45,7 @@ class DoctorByIdView(RetrieveAPIView):
     permission_classes = [IsAuthenticated,]
     http_method_names = ["get"]
     allowed_methods = ["get"]
+    lookup_field = 'id'
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()  # get the doctor by id that is retrieved automatically

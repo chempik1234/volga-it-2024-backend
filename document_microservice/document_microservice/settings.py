@@ -154,8 +154,18 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAdminUser"
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # check the middlewares
+        "rest_framework_simplejwt.authentication.JWTAuthentication"
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S.%fZ',
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
 }

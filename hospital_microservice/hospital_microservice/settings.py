@@ -153,7 +153,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAdminUser"
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # check the middlewares
+        "rest_framework_simplejwt.authentication.JWTAuthentication"
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
