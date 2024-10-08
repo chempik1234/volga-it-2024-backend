@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework",
     "rest_framework_simplejwt",
-    "api"
+    'rest_framework_simplejwt.token_blacklist',
+    "api",
+    'django_grpc_framework'
 ]
 
 MIDDLEWARE = [
@@ -159,4 +161,8 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication"
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+GRPC_FRAMEWORK = {
+    'ROOT_HANDLERS_HOOK': 'api.grpc_handlers',
 }

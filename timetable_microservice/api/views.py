@@ -56,7 +56,7 @@ class DeleteTimetablesByDoctorView(DestroyAPIView):
 
     def delete(self, request, id):
         # id isn't the PK, it's the doctor_id!
-        Timetable.objects.filter(doctor_id=id).delete()  # delete everything (0+ rows) with doctor_id equal to <id>
+        Timetable.objects.filter(doctor_id=id).soft_delete()  # delete everything (0+ rows) with doctor_id equal to <id>
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

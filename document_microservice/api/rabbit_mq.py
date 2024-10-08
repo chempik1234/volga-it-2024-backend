@@ -16,7 +16,7 @@ connection = None  # it will change during the first query/response, check the c
 
 def connect_to_rabbit_mq():
     global connection
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
 
 
 def send_request_rabbit_mq(queue_name, message):

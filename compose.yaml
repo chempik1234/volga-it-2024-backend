@@ -1,34 +1,6 @@
 version: '3.8'
 
 services:
-
-  # igration:
-  #  build:
-  #    context: .
-  #    dockerfile:
-  #  command: ["sh", "-c", "docker exec -it account_microservice_1 bash -c \
-  #                                      'python manage.py makemigrations --noinput' && \
-  #                         docker exec -it account_microservice_1 bash -c \
-  #                                      'python manage.py migrate --noinput' \
-  #                         docker exec -it hospital_microservice_1 bash -c \
-  #                                      'python manage.py makemigrations --noinput' && \
-  #                         docker exec -it hospital_microservice_1 bash -c \
-  #                                      'python manage.py migrate --noinput' \
-  #                         docker exec -it timetable_microservice_1 bash -c \
-  #                                      'python manage.py makemigrations --noinput' \
-  #                         docker exec -it timetable_microservice_1 bash -c \
-  #                                      'python manage.py migrate --noinput' \
-  #                         docker exec -it document_microservice_1 bash -c \
-  #                                      'python manage.py makemigrations --noinput' \
-  #                         docker exec -it document_microservice_1 bash -c \
-  #                                      'python manage.py migrate --noinput'"
-  #  ]
-  #  depends_on:
-  #    - account_microservice
-  #    - hospital_microservice
-  #    - timetable_microservice
-  #    - document_microservice
-
   account_microservice:
     build:
       context: ./account_microservice/
@@ -40,6 +12,10 @@ services:
       - "8081:8081"
     depends_on:
       db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      cache:
         condition: service_healthy
   hospital_microservice:
     build:
@@ -53,6 +29,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
   timetable_microservice:
     build:
       context: ./timetable_microservice/
@@ -65,6 +45,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
   document_microservice:
     build:
       context: ./document_microservice/
@@ -76,6 +60,10 @@ services:
       - "8084:8084"
     depends_on:
       db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      cache:
         condition: service_healthy
   db:
     image: postgres:15.1
@@ -109,6 +97,11 @@ services:
       - "5672:5672"
       - "15672:15672"  # UI Web version
     restart: always
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
   nginx:
     image: nginx:latest
     build: ./nginx

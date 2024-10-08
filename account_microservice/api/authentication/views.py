@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.contrib.auth import get_user_model, logout
 from rest_framework import status
@@ -7,9 +8,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 
 from ..serializers import CustomUserSerializer, SignOutSerializer, CustomTokenObtainPairSerializer
 
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
@@ -89,5 +92,11 @@ class SignOutView(GenericAPIView):
         return self.serializer_class
 
     def post(self, request: Request) -> Response:
-        logout(request)
-        return Response(self.serializer_class().data, status=status.HTTP_200_OK)
+
+        tokens = OutstandingToken.objects.filter(user_id=request.user.id)
+        for token in tokens:
+            t, _ = BlacklistedToken.objects.get_or_create(token=token)
+            logger.info(f"SIGNED OUT TOKEN {token} OF USER WITH ID {request.user.id}")
+        # TODO: make this shit work
+
+        return Response(self.serializer_class().data, status=status.HTTP_205_RESET_CONTENT)

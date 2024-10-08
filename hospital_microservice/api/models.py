@@ -2,6 +2,11 @@ from django.core.validators import MinLengthValidator, RegexValidator
 from django.db import models
 
 
+class SoftDeleteManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
+
 class Hospital(models.Model):
     """
     Hospital model with name, address and regexed <=15 digits phone number
@@ -32,6 +37,13 @@ class Hospital(models.Model):
         blank=False,
         null=False
     )
+    is_deleted = models.BooleanField(default=False)
+
+    objects = SoftDeleteManager()
+
+    def soft_delete(self):
+        self.is_deleted = True
+        self.save()
 
 
 class Room(models.Model):

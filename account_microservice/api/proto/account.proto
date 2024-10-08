@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+message JWTRequest {
+  string jwt = 1;
+}
+
+message JWTResponse {
+  bool result = 1;
+  string message = 2;
+}
+
+message UserSerialized {
+  int32 id = 1;
+  string firstName = 2;
+  string secondName = 3;
+  string username = 4;
+  repeated string roles = 5;
+}
+
+message UserRequest {
+  int32 user_id = 1;
+  optional string role = 2;
+}
+
+message UserResponse {
+  int32 user_id = 1;
+  optional string role = 2;
+  optional UserSerialized user = 3;
+}
+
+service AccountRpcService {
+  rpc ValidateJWT(JWTRequest) returns (JWTResponse);
+  rpc ValidateUser(UserRequest) returns (UserResponse);
+}
+
+// python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. account.proto

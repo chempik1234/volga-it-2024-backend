@@ -126,3 +126,6 @@ class AdminAccountsViewSet(ModelViewSet):
         put_ = request.data
         request.data.update({"roles": [{"name": i} for i in put_.pop('roles', [])]})
         return super().update(request, args, kwargs)
+
+    def perform_destroy(self, instance):
+        instance.soft_delete()

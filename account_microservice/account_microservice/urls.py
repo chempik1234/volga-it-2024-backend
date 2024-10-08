@@ -3,6 +3,7 @@ from django.urls import path, include
 
 from drf_spectacular.views import (SpectacularAPIView, SpectacularRedocView,
                                    SpectacularSwaggerView)
+import api.run_create_default_users  # execute this on startup
 
 urlpatterns = [
     path('admin/', admin.site.urls),

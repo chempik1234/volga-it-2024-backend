@@ -1,44 +1,24 @@
+import logging
+
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django_grpc_framework import services
 
+from .serializers import CustomUserSerializerWithRoles
+# from .proto import account_pb2_grpc as pb2_grpc
+
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
-class UserService:
-    def __init__(self):
-        pass
+class UserGrpcService(services.Service):
+    """
+    gRPC service that allows to find User objects by id & maybe role
+    """
+    def ValidateJWT(self, request, context):
+        logger.info(f"DUUUDE!!! JWT!!! {request}")
 
-    def create_user(self, username, password, roles, is_staff, is_superuser):
-        from .models import Role
-        with transaction.atomic():
-            user = User()
-            user.username = username
-            user.first_name = username
-            user.last_name = username
-            user.set_password(password)
-            user.is_staff = is_staff
-            user.is_superuser = is_superuser
-            user.save()
-            for role_name in roles:
-                role, created = Role.objects.get_or_create(name=role_name)
-                user.roles.add(role)
+    def ValidateUser(self, request, context):
+        logger.info(f"DUUUDE!!! USERSSS!!! {request}")
 
 
-def create_4_users():
-    service = UserService()
-    try:
-        service.create_user("admin", "admin", ["Admin"], True, True)
-    except Exception:
-        pass
-    try:
-        service.create_user("manager", "manager", ["Manager"], is_staff=True, is_superuser=True)
-    except Exception:
-        pass
-    try:
-        service.create_user("doctor", "doctor", ["Doctor"], is_staff=True, is_superuser=True)
-    except Exception:
-        pass
-    try:
-        service.create_user("user", "user", ["User"], is_staff=True, is_superuser=True)
-    except Exception:
-        pass

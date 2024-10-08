@@ -4,6 +4,11 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 
 
+class SoftDeleteManager(UserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=True)
+
+
 class Role(models.Model):
     """
     Role model which objects are attached to users in M2M
@@ -58,6 +63,7 @@ class CustomUser(AbstractBaseUser):
         verbose_name="Роли",
         related_name="users"
     )
+    is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = (
@@ -66,9 +72,13 @@ class CustomUser(AbstractBaseUser):
         'password'
     )
 
-    objects = UserManager()
+    objects = SoftDeleteManager()
 
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ('-id',)
+
+    def soft_delete(self):
+        self.is_active = False
+        self.save()

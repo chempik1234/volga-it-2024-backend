@@ -1,4 +1,6 @@
 import json
+import logging
+
 import pika
 from django.conf import settings
 from threading import Event
@@ -21,10 +23,12 @@ connection = None  # it will change during the first query/response, check the c
 
 User = get_user_model()
 
+logger = logging.getLogger(__name__)
+
 
 def connect_to_rabbit_mq():
     global connection
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
 
 
 def send_request_rabbit_mq(queue_name, message):
@@ -47,7 +51,7 @@ def start_consuming_with_rabbit_mq(queue_name, data_process_function):
     """
 
     def callback(ch, method, properties, body):
-        print("AUTH MICROSERVICE: RECEIVED MESSAGE", body, sep='\n')  # show message in terminal
+        logger.info(f"AUTH MICROSERVICE: RECEIVED MESSAGE {body}")  # show message in terminal
         data = json.loads(body)
         message, response_queue = data_process_function(data)
         send_request_rabbit_mq(response_queue, json.dumps(message))

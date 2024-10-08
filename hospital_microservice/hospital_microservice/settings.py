@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'api.middleware.AuthenticationProxyingMiddleware'
+    # 'api.middleware.AuthenticationProxyingMiddleware'
 ]
 
 ROOT_URLCONF = 'hospital_microservice.urls'
@@ -153,7 +153,26 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAdminUser"
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication"
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication'
+        "api.authenticator.SimplifiedJWTAuthentication"
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# SPECTACULAR_SETTINGS = {
+#     'AUTHENTICATION_WHITELIST': ['api.authenticator.SimplifiedJWTAuthentication'],
+# }
+
+# SWAGGER_SETTINGS = {
+#     'SECURITY_DEFINITIONS': {
+#         'api_key': {
+#             'type': 'apiKey',
+#             'in': 'header',
+#             'name': 'Authorization'
+#         }
+#     },
+# }
+
+GRPC_FRAMEWORK = {
+    'ROOT_HANDLERS_HOOK': 'api.grpc_handlers.grpc_handlers.grpc_handlers',
 }

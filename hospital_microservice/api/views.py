@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiTypes
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import ListAPIView, get_object_or_404
@@ -10,6 +11,16 @@ from .models import Hospital
 from .serializers import HospitalSerializer, RoomSerializer
 
 
+@extend_schema_view(
+    hospitals=extend_schema(
+        parameters=[
+            OpenApiParameter("from", description="Selection start (not by id!)",
+                             type=OpenApiTypes.INT, location=OpenApiParameter.QUERY),
+            OpenApiParameter("count", description="Selection size (not by id!)",
+                             type=OpenApiTypes.INT, location=OpenApiParameter.QUERY),
+        ]
+    )
+)
 class HospitalsViewSet(ModelViewSet):
     """
     ViewSet for admin accounts CRUD with roles creation support
@@ -29,6 +40,9 @@ class HospitalsViewSet(ModelViewSet):
         hospitals = Hospital.objects.all()[from_:from_ + count]
         serializer = HospitalSerializer(hospitals, many=True)
         return Response(serializer.data)
+
+    def perform_destroy(self, instance):
+        instance.soft_destroy()
 
 
 class HospitalRoomsListView(ListAPIView):

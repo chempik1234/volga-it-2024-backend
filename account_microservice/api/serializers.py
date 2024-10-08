@@ -39,11 +39,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
         This creation method creates and returns only the user
         :return: created user
         """
+        user = None
         with transaction.atomic():
             password = validated_data['password']  # not popping to let django use raw value
             user = super().create(validated_data)
             user.set_password(password)
             user.save()
+        return user
 
     def update(self, instance, validated_data):
         """
@@ -55,6 +57,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             instance = super().update(instance, validated_data)
             instance.set_password(password)  # paste hashed password
             instance.save()
+        return instance
 
 
 class CustomUserSerializerWithRoles(CustomUserSerializer):
@@ -116,6 +119,13 @@ class SignOutSerializer(serializers.Serializer):
 
     def to_internal_value(self, data):
         return {"details": "signed out successfully"}
+
+
+class CustomTokenVerifySerializer(serializers.Serializer):
+    """
+    Custom serializer for HTTP token validation that returns {"valid": bool}
+    """
+    valid = serializers.BooleanField()
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):

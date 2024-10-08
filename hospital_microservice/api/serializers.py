@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.db import transaction
 
 from .models import Hospital, Room
+from .authenticator import CustomSimpleJWTScheme
 
 
 class RoomSerializer(serializers.ModelSerializer):
