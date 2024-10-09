@@ -15,4 +15,5 @@ COPY . .
 
 EXPOSE 8081
 
-ENTRYPOINT ["sh", "./startup.sh"]
+RUN sed -i '281,285d' /usr/local/lib/python3.12/site-packages/django/core/management/base.py
+ENTRYPOINT ["sh", "startup.sh"]

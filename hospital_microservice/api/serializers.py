@@ -14,6 +14,13 @@ class RoomSerializer(serializers.ModelSerializer):
         fields = ("name",)
         lookup_field = "name"
 
+    def validate_name(self, value):
+        print("validate role name !", value)
+        return value
+
+    def to_representation(self, instance):
+        return instance.name
+
 
 class HospitalSerializer(serializers.ModelSerializer):
     """
@@ -49,6 +56,8 @@ class HospitalSerializer(serializers.ModelSerializer):
         :return: updated hospital
         """
         room_names = validated_data.pop('rooms', [])  # rooms are popped from validated_data to not bother the super()
+        # [{"name": name}, ..]
+        room_names = [i["name"] for i in room_names]  # [name, ...]
 
         with transaction.atomic():  # this big hospital & rooms creation operation must be atomic!
             instance = super().update(instance, validated_data)  # let the rest framework handle hospital creation

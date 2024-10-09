@@ -164,5 +164,7 @@ REST_FRAMEWORK = {
 }
 
 GRPC_FRAMEWORK = {
-    'ROOT_HANDLERS_HOOK': 'api.grpc_handlers',
+    'ROOT_HANDLERS_HOOK': 'api.grpc_handlers.grpc_handlers',
 }
+GRPC_PORT_ACCOUNT = os.getenv("GRPC_PORT_ACCOUNT", "50051")
+GRPC_PORT_HOSPITAL = os.getenv("GRPC_PORT_HOSPITAL", "50052")

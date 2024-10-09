@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "drf_spectacular",
     "rest_framework",
-    "api"
+    "rest_framework_simplejwt",
+    "api",
+    'django_grpc_framework'
 ]
 
 MIDDLEWARE = [
@@ -149,30 +151,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-        "rest_framework.permissions.IsAdminUser"
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication'
         "api.authenticator.SimplifiedJWTAuthentication"
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "AUTH_TOKEN_CLASSES": [
+        "api.authenticator.SimpleGPRCToken"
+     ]
 }
-
-# SPECTACULAR_SETTINGS = {
-#     'AUTHENTICATION_WHITELIST': ['api.authenticator.SimplifiedJWTAuthentication'],
-# }
-
-# SWAGGER_SETTINGS = {
-#     'SECURITY_DEFINITIONS': {
-#         'api_key': {
-#             'type': 'apiKey',
-#             'in': 'header',
-#             'name': 'Authorization'
-#         }
-#     },
-# }
 
 GRPC_FRAMEWORK = {
-    'ROOT_HANDLERS_HOOK': 'api.grpc_handlers.grpc_handlers.grpc_handlers',
+    'ROOT_HANDLERS_HOOK': 'api.grpc_handlers.grpc_handlers',
 }
+GRPC_PORT_ACCOUNT = os.getenv("GRPC_PORT_ACCOUNT", "50051")
+GRPC_PORT_HOSPITAL = os.getenv("GRPC_PORT_HOSPITAL", "50052")

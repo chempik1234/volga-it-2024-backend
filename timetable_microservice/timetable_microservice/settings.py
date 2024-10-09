@@ -50,8 +50,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'api.middleware.AuthenticationProxyingMiddleware'
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'timetable_microservice.urls'
@@ -154,8 +153,17 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAdminUser"
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication"
+        "api.authenticator.SimplifiedJWTAuthentication"
     ],
+    "AUTH_TOKEN_CLASSES": [
+        "api.authenticator.SimpleGPRCToken"
+     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S.%fZ',
 }
+
+GRPC_FRAMEWORK = {
+    'ROOT_HANDLERS_HOOK': 'api.grpc_handlers.grpc_handlers',
+}
+GRPC_PORT_ACCOUNT = os.getenv("GRPC_PORT_ACCOUNT", "50051")
+GRPC_PORT_HOSPITAL = os.getenv("GRPC_PORT_HOSPITAL", "50052")

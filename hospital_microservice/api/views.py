@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from .authenticator import SimplifiedJWTAuthentication
 from .permissions import IsAdminOrAuthenticatedAndGET
 from .models import Hospital
 from .serializers import HospitalSerializer, RoomSerializer
@@ -28,6 +29,7 @@ class HospitalsViewSet(ModelViewSet):
     queryset = Hospital.objects.all()
     serializer_class = HospitalSerializer
     permission_classes = [IsAdminOrAuthenticatedAndGET,]
+    authentication_classes = [SimplifiedJWTAuthentication]
 
     @action(detail=False, methods=["get"])
     def hospitals(self, request):
@@ -40,6 +42,24 @@ class HospitalsViewSet(ModelViewSet):
         hospitals = Hospital.objects.all()[from_:from_ + count]
         serializer = HospitalSerializer(hospitals, many=True)
         return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        """
+        The endpoint for creating Hospital with rooms (special body format requires the orverriding of create() method)
+        POST /api/Hospitals
+        """
+        put_ = request.data
+        request.data.update({"rooms": [{"name": i} for i in put_.pop('rooms', [])]})
+        return super().create(request, args, kwargs)
+
+    def update(self, request, *args, **kwargs):
+        """
+        The endpoint for updating Hospital with rooms (special body format requires the orverriding of update() method)
+        PUT /api/Hospitals/{id}
+        """
+        put_ = request.data
+        request.data.update({"rooms": [{"name": i} for i in put_.pop('rooms', [])]})
+        return super().update(request, args, kwargs)
 
     def perform_destroy(self, instance):
         instance.soft_destroy()

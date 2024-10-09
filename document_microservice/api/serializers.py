@@ -3,10 +3,8 @@ import json
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from .grpc_consume_produce import grpc_check_user_and_role, grpc_check_room, grpc_check_hospital
 from .models import Visit
-from .rabbit_mq import send_request_rabbit_mq, hospital_and_maybe_room_queue_request, \
-    consume_with_rabbit_mq, hospital_and_maybe_room_queue_response, role_queue_request, role_queue_response
-from .services import RoleCheckService
 
 
 class VisitSerializer(serializers.ModelSerializer):
@@ -26,11 +24,7 @@ class VisitSerializer(serializers.ModelSerializer):
         """
         hospitalId "object exists" validator that uses sync RabbitMq request-response (senseless but cool!)
         """
-        message = {"hospital_id": value}
-        send_request_rabbit_mq(hospital_and_maybe_room_queue_request, json.dumps(message)) # 1) send validation request
-        response = consume_with_rabbit_mq(  # 2) get response with hospital info
-            hospital_and_maybe_room_queue_response, lambda x: (x.get('hospital_id', '') == value))
-        if response.get('hospital', None):
+        if grpc_check_hospital(value):
             return value
         else:
             raise ValidationError("hospital id couldn't be validated!")
@@ -41,8 +35,7 @@ class VisitSerializer(serializers.ModelSerializer):
 
         - checks role Doctor
         """
-        response = RoleCheckService().check_role(value, 'Doctor')
-        if response.get('user', None):
+        if grpc_check_user_and_role(value, "Doctor"):
             return value
         else:
             raise ValidationError("doctor id couldn't be validated!")
@@ -53,19 +46,14 @@ class VisitSerializer(serializers.ModelSerializer):
 
         - checks role User
         """
-        response = RoleCheckService().check_role(value, 'User')
-        if response.get('user', None):
+        if grpc_check_user_and_role(value, "User"):
             return value
         else:
             raise ValidationError("patient id couldn't be validated!")
 
     def validate(self, data):
         room_name, hospital_id = data.get("room"), data.get("hospitalId")
-        message = {"room_name": room_name, "hospital_id": hospital_id}
-        send_request_rabbit_mq(hospital_and_maybe_room_queue_request, json.dumps(message))  # 1) send validation request
-        response = consume_with_rabbit_mq(  # 2) get response with room info
-            hospital_and_maybe_room_queue_response, lambda x: (x.get('room_name', '') == room_name))
-        if response.get('room', None) is None:
+        if grpc_check_room(hospital_id, room_name):
             raise ValidationError("Room with given name and hospital doesn't exist!")
         return data
 

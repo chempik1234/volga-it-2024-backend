@@ -24,23 +24,23 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\raccount.proto\"\x19\n\nJWTRequest\x12\x0b\n\x03jwt\x18\x01 \x01(\t\".\n\x0bJWTResponse\x12\x0e\n\x06result\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"d\n\x0eUserSerialized\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x11\n\tfirstName\x18\x02 \x01(\t\x12\x12\n\nsecondName\x18\x03 \x01(\t\x12\x10\n\x08username\x18\x04 \x01(\t\x12\r\n\x05roles\x18\x05 \x03(\t\":\n\x0bUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x11\n\x04role\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\x07\n\x05_role\"h\n\x0cUserResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x11\n\x04role\x18\x02 \x01(\tH\x00\x88\x01\x01\x12\"\n\x04user\x18\x03 \x01(\x0b\x32\x0f.UserSerializedH\x01\x88\x01\x01\x42\x07\n\x05_roleB\x07\n\x05_user2j\n\x11\x41\x63\x63ountRpcService\x12(\n\x0bValidateJWT\x12\x0b.JWTRequest\x1a\x0c.JWTResponse\x12+\n\x0cValidateUser\x12\x0c.UserRequest\x1a\r.UserResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\raccount.proto\"d\n\x0eUserSerialized\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x11\n\tfirstName\x18\x02 \x01(\t\x12\x12\n\nsecondName\x18\x03 \x01(\t\x12\x10\n\x08username\x18\x04 \x01(\t\x12\r\n\x05roles\x18\x05 \x03(\t\"\x19\n\nJWTRequest\x12\x0b\n\x03jwt\x18\x01 \x01(\t\"G\n\x0bJWTResponse\x12\x0b\n\x03jwt\x18\x01 \x01(\t\x12\"\n\x04user\x18\x02 \x01(\x0b\x32\x0f.UserSerializedH\x00\x88\x01\x01\x42\x07\n\x05_user\":\n\x0bUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x11\n\x04role\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\x07\n\x05_role\"h\n\x0cUserResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x11\n\x04role\x18\x02 \x01(\tH\x00\x88\x01\x01\x12\"\n\x04user\x18\x03 \x01(\x0b\x32\x0f.UserSerializedH\x01\x88\x01\x01\x42\x07\n\x05_roleB\x07\n\x05_user2j\n\x11\x41\x63\x63ountRpcService\x12(\n\x0bValidateJWT\x12\x0b.JWTRequest\x1a\x0c.JWTResponse\x12+\n\x0cValidateUser\x12\x0c.UserRequest\x1a\r.UserResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'account_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_JWTREQUEST']._serialized_start=17
-  _globals['_JWTREQUEST']._serialized_end=42
-  _globals['_JWTRESPONSE']._serialized_start=44
-  _globals['_JWTRESPONSE']._serialized_end=90
-  _globals['_USERSERIALIZED']._serialized_start=92
-  _globals['_USERSERIALIZED']._serialized_end=192
-  _globals['_USERREQUEST']._serialized_start=194
-  _globals['_USERREQUEST']._serialized_end=252
-  _globals['_USERRESPONSE']._serialized_start=254
-  _globals['_USERRESPONSE']._serialized_end=358
-  _globals['_ACCOUNTRPCSERVICE']._serialized_start=360
-  _globals['_ACCOUNTRPCSERVICE']._serialized_end=466
+  _globals['_USERSERIALIZED']._serialized_start=17
+  _globals['_USERSERIALIZED']._serialized_end=117
+  _globals['_JWTREQUEST']._serialized_start=119
+  _globals['_JWTREQUEST']._serialized_end=144
+  _globals['_JWTRESPONSE']._serialized_start=146
+  _globals['_JWTRESPONSE']._serialized_end=217
+  _globals['_USERREQUEST']._serialized_start=219
+  _globals['_USERREQUEST']._serialized_end=277
+  _globals['_USERRESPONSE']._serialized_start=279
+  _globals['_USERRESPONSE']._serialized_end=383
+  _globals['_ACCOUNTRPCSERVICE']._serialized_start=385
+  _globals['_ACCOUNTRPCSERVICE']._serialized_end=491
 # @@protoc_insertion_point(module_scope)

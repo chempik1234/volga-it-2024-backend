@@ -10,10 +10,9 @@ services:
       - env/django_general.env
     ports:
       - "8081:8081"
+      - "50051:50051"
     depends_on:
       db:
-        condition: service_healthy
-      rabbitmq:
         condition: service_healthy
       cache:
         condition: service_healthy
@@ -26,10 +25,9 @@ services:
       - env/django_general.env
     ports:
       - "8082:8082"
+      - "50052:50052"
     depends_on:
       db:
-        condition: service_healthy
-      rabbitmq:
         condition: service_healthy
       cache:
         condition: service_healthy
@@ -45,8 +43,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
       cache:
         condition: service_healthy
   document_microservice:
@@ -60,8 +56,6 @@ services:
       - "8084:8084"
     depends_on:
       db:
-        condition: service_healthy
-      rabbitmq:
         condition: service_healthy
       cache:
         condition: service_healthy
@@ -91,17 +85,17 @@ services:
       interval: 5s
       timeout: 1s
       retries: 3
-  rabbitmq:
-    image: rabbitmq:3.10.1-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"  # UI Web version
-    restart: always
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
+  # rabbitmq:
+  #   image: rabbitmq:3.10.1-management
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"  # UI Web version
+  #   restart: always
+  #   healthcheck:
+  #     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+  #     interval: 30s
+  #     timeout: 30s
+  #     retries: 3
   nginx:
     image: nginx:latest
     build: ./nginx

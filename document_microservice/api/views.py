@@ -3,10 +3,10 @@ from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView
 from rest_framework.response import Response
 
+from .grpc_consume_produce import grpc_check_user_and_role
 from .models import Visit
 from .permissions import IsDoctorWithRole, IsDoctorOrPatientWithRole, IsAdminOrManagerWithRole
 from .serializers import VisitSerializer
-from .services import RoleCheckService
 
 
 class VisitsByAccountView(ListAPIView):
@@ -22,7 +22,7 @@ class VisitsByAccountView(ListAPIView):
 
     def get_queryset(self):
         patient_id = self.kwargs.get("id")
-        response = RoleCheckService().check_role(patient_id, 'User')
+        response = grpc_check_user_and_role(patient_id, 'User')
         patient = response.get("user")
         if not patient:
             return Response({"details": "Couldn't find given patient"}, status=status.HTTP_404_NOT_FOUND)
