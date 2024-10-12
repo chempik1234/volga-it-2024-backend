@@ -17,11 +17,20 @@ class RoleSerializer(serializers.ModelSerializer):
         model = Role
 
     def validate_name(self, value):
-        print("validate role name !", value)
         return value
 
     def to_representation(self, instance):
         return instance.name
+
+    @property
+    def data(self):
+        return self.fields.get("name")
+
+    def get_default(self):
+        return "name"
+
+    def get_initial(self):
+        return self.fields["name"]
 
 
 class CustomUserSerializer(serializers.ModelSerializer):

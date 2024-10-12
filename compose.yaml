@@ -85,17 +85,6 @@ services:
       interval: 5s
       timeout: 1s
       retries: 3
-  # rabbitmq:
-  #   image: rabbitmq:3.10.1-management
-  #   ports:
-  #     - "5672:5672"
-  #     - "15672:15672"  # UI Web version
-  #   restart: always
-  #   healthcheck:
-  #     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-  #     interval: 30s
-  #     timeout: 30s
-  #     retries: 3
   nginx:
     image: nginx:latest
     build: ./nginx

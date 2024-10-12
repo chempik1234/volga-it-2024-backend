@@ -16,7 +16,6 @@ def grpc_user_by_jwt(raw_token):
         client = account_pb2_grpc.AccountRpcServiceStub(channel)
         request = JWTRequest(jwt=raw_token)
         response = client.ValidateJWT(request)
-        logger.error("RESPONSE: ", response)
         user = getattr(response, "user", None)
         return user
     except Exception as e:
@@ -30,7 +29,6 @@ def grpc_check_roles(user_id, role=None):
         client = account_pb2_grpc.AccountRpcServiceStub(channel)
         request = UserRequest(user_id=user_id, role=None)
         response = client.ValidateUser(request)
-        logger.error("RESPONSE: ", response)
         user = getattr(response, "user", None)
         return user
     except Exception as e:

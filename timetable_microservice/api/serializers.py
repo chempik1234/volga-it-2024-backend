@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime, timedelta
 
 from rest_framework import serializers
@@ -24,7 +25,7 @@ class TimetableSerializer(serializers.ModelSerializer):
 
     def validate_hospitalId(self, value):
         """
-        hospitalId "object exists" validator that uses sync RabbitMq request-response (senseless but cool!)
+        hospitalId "object exists" validator that uses gRPC request-response
         """
         if grpc_check_hospital(hospital_id=value):
             return value
@@ -33,7 +34,7 @@ class TimetableSerializer(serializers.ModelSerializer):
 
     def validate_doctorId(self, value):
         """
-        doctorId "object exists" validator that uses sync RabbitMq request-response (senseless but cool!)
+        doctorId "object exists" validator that uses sync gRPC request-response
 
         - checks role Doctor
         """
@@ -54,14 +55,12 @@ class TimetableSerializer(serializers.ModelSerializer):
     #         return value
 
     def validate_timeFrom(self, value):
-        time_from_validated_value = datetime.fromisoformat(value)
-        if time_from_validated_value.minute % 30 or time_from_validated_value.second != 0:
+        if value.minute % 30 or value.second != 0:
             raise ValidationError("Minutes must be a multiple of 30, and seconds must be equal to 0 in timeFrom!")
         return value
 
     def validate_timeTo(self, value):
-        time_to_validated_value = datetime.fromisoformat(value)
-        if time_to_validated_value.minute % 30 or time_to_validated_value.second != 0:
+        if value.minute % 30 or value.second != 0:
             raise ValidationError("Minutes must be a multiple of 30, and seconds must be equal to 0 in timeTo!")
         return value
 
@@ -70,8 +69,8 @@ class TimetableSerializer(serializers.ModelSerializer):
         if grpc_check_room(hospital_id, room_name):
             raise ValidationError("Room with given name and hospital doesn't exist!")
 
-        time_from = datetime.fromisoformat(data.get('time_from'))
-        time_to = datetime.fromisoformat(data.get('time_to'))
+        time_from = data.get('time_from')
+        time_to = data.get('time_to')
 
         if time_from >= time_to:
             raise ValidationError("timeFrom mustn't be later or equal to timeTo!")
@@ -93,6 +92,12 @@ class AppointmentSerializer(serializers.ModelSerializer):
     def validate(self, data):
         timetable = data.get("timetable")
         time = data.get("time")
-        if Appointment.objects.filter(timetable=timetable, time=datetime.fromisoformat(time)).exists():
+        if Appointment.objects.filter(timetable=timetable, time=time).exists():
             raise ValidationError("Appointment on that timetable on the same time already exists!")
+        if time < timetable.time_from or time > timetable.time_to:
+            raise ValidationError(f"Appointment tiime {time} must have been between {timetable.time_from} and "
+                                  f"{timetable.time_to}!")
+        if (time - timetable.time_from).seconds % 1800:
+            raise ValidationError(f"Invalid appointment time: difference from {timetable.time_from} must be a "
+                                  f"multiple of 30, not {round((time - timetable.time_from).seconds / 60, 2)}!")
         return data

@@ -1,20 +1,20 @@
 syntax = "proto3";
 
+message UserSerialized {
+  int32 id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string username = 4;
+  repeated string roles = 5;
+}
+
 message JWTRequest {
   string jwt = 1;
 }
 
 message JWTResponse {
-  bool result = 1;
-  string message = 2;
-}
-
-message UserSerialized {
-  int32 id = 1;
-  string firstName = 2;
-  string secondName = 3;
-  string username = 4;
-  repeated string roles = 5;
+  string jwt = 1;
+  optional UserSerialized user = 2;
 }
 
 message UserRequest {

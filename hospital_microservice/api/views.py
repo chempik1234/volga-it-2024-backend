@@ -1,13 +1,12 @@
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, OpenApiTypes
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
-from rest_framework.generics import ListAPIView, get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .authenticator import SimplifiedJWTAuthentication
-from .permissions import IsAdminOrAuthenticatedAndGET
+from .permissions import IsAdminOrAuthenticatedAndGET, IsAuthenticated
 from .models import Hospital
 from .serializers import HospitalSerializer, RoomSerializer
 
@@ -30,6 +29,7 @@ class HospitalsViewSet(ModelViewSet):
     serializer_class = HospitalSerializer
     permission_classes = [IsAdminOrAuthenticatedAndGET,]
     authentication_classes = [SimplifiedJWTAuthentication]
+    lookup_field = 'id'
 
     @action(detail=False, methods=["get"])
     def hospitals(self, request):
@@ -62,7 +62,7 @@ class HospitalsViewSet(ModelViewSet):
         return super().update(request, args, kwargs)
 
     def perform_destroy(self, instance):
-        instance.soft_destroy()
+        instance.soft_delete()
 
 
 class HospitalRoomsListView(ListAPIView):
@@ -76,7 +76,7 @@ class HospitalRoomsListView(ListAPIView):
     serializer_class = RoomSerializer
 
     def get_queryset(self):
-        hospital_id = int(self.request.kwargs.get('id'))
+        hospital_id = int(self.kwargs.get('id'))
         try:
             hospital = Hospital.objects.get(id=hospital_id)
             return hospital.rooms.all()

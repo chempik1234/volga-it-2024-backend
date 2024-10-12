@@ -18,7 +18,6 @@ def grpc_user_by_jwt(raw_token):
         client = account_pb2_grpc.AccountRpcServiceStub(channel)
         request = JWTRequest(jwt=raw_token)
         response = client.ValidateJWT(request)
-        logger.error("RESPONSE: ", response)
         user = getattr(response, "user", None)
         return user
     except Exception as e:
@@ -30,9 +29,8 @@ def grpc_check_user_and_role(user_id, role=None):
     try:
         channel = grpc.insecure_channel(f"account_microservice:{GRPC_PORT_ACCOUNT}")
         client = account_pb2_grpc.AccountRpcServiceStub(channel)
-        request = UserRequest(user_id=user_id, role=None)
+        request = UserRequest(user_id=user_id, role=role)
         response = client.ValidateUser(request)
-        logger.error("RESPONSE: ", response)
         user = getattr(response, "user", None)
         return user
     except Exception as e:

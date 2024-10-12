@@ -22,16 +22,16 @@ class VisitSerializer(serializers.ModelSerializer):
 
     def validate_hospitalId(self, value):
         """
-        hospitalId "object exists" validator that uses sync RabbitMq request-response (senseless but cool!)
+        hospitalId "object exists" validator that uses sync gRPC request-response
         """
-        if grpc_check_hospital(value):
+        if grpc_check_hospital(hospital_id=value):
             return value
         else:
             raise ValidationError("hospital id couldn't be validated!")
 
     def validate_doctorId(self, value):
         """
-        doctorId "object exists" validator that uses sync RabbitMq request-response (senseless but cool!)
+        doctorId "object exists" validator that uses sync gRPC request-response
 
         - checks role Doctor
         """
@@ -42,7 +42,7 @@ class VisitSerializer(serializers.ModelSerializer):
 
     def validate_patientId(self, value):
         """
-        patientId "object exists" validator that uses sync RabbitMq request-response (senseless but cool!)
+        patientId "object exists" validator that uses sync gRPC request-response
 
         - checks role User
         """

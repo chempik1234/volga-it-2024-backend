@@ -21,6 +21,7 @@ class HospitalGrpcService(services.Service):
         response: {"hospital_id": int, valid: bool}
         """
         result = data_process_hospital_or_room(request.hospital_id)
+        logger.error(f"Validated hospital {request.hospital_id} --> {result}")
         return HospitalResponse(**result)
 
     def ValidateRoom(self, request, context):
@@ -30,6 +31,7 @@ class HospitalGrpcService(services.Service):
         response: {"hospital_id": int, valid: bool}
         """
         result = data_process_hospital_or_room(request.hospital_id, room_name=request.room_name)
+        logger.error(f"Validated room {request.hospital_id}, {request.room_name} --> {result}")
         return RoomResponse(**result)
 
 

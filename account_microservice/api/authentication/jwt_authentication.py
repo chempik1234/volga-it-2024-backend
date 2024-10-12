@@ -1,5 +1,5 @@
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
-from rest_framework import status
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, inline_serializer
+from rest_framework import status, serializers
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -37,12 +37,21 @@ class CustomTokenVerifyView(GenericAPIView):
             return Response(self.serializer_class(data={"valid": False}).data, status=status.HTTP_401_UNAUTHORIZED)
 
 
+@extend_schema_view(
+    post=extend_schema(
+        request=inline_serializer(
+            name="JWTRefreshSerializer",
+            fields={
+                "refreshToken": serializers.CharField(allow_blank=False, allow_null=False)
+            }
+        )
+    )
+)
 class CustomTokenRefreshView(TokenRefreshView):
     """
     SimpleJWT's "TokenRefreshView" but with the "refreshToken" key, not "refresh" as usual
     POST /api/Authentication/Refresh
     """
-    # TODO: make this shit work
     def post(self, request: Request, *args, **kwargs) -> Response:
         refresh_token = request.data.get('refreshToken')  # get the token from request body
         if not refresh_token:  # it's required, so ERROR 400 is thrown if absent

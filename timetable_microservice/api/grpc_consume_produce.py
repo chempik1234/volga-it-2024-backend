@@ -18,7 +18,6 @@ def grpc_user_by_jwt(raw_token):
         client = account_pb2_grpc.AccountRpcServiceStub(channel)
         request = JWTRequest(jwt=raw_token)
         response = client.ValidateJWT(request)
-        logger.error("RESPONSE: ", response)
         user = getattr(response, "user", None)
         return user
     except Exception as e:
@@ -32,7 +31,6 @@ def grpc_check_roles(user_id, role=None):
         client = account_pb2_grpc.AccountRpcServiceStub(channel)
         request = UserRequest(user_id=user_id, role=None)
         response = client.ValidateUser(request)
-        logger.error("RESPONSE: ", response)
         user = getattr(response, "user", None)
         return user
     except Exception as e:
@@ -46,7 +44,6 @@ def grpc_check_hospital(hospital_id):
         client = hospital_pb2_grpc.HospitalRpcServiceStub(channel)
         request = HospitalRequest(hospital_id=hospital_id)
         response = client.ValidateHospital(request)
-        logger.error("RESPONSE: ", response)
         valid = getattr(response, "valid", False)
         return valid
     except Exception as e:
@@ -60,7 +57,6 @@ def grpc_check_room(hospital_id, room_name):
         client = hospital_pb2_grpc.HospitalRpcServiceStub(channel)
         request = RoomRequest(hospital_id=hospital_id, room_name=room_name)
         response = client.ValidateRoom(request)
-        logger.error("RESPONSE: ", response)
         valid = getattr(response, "valid", False)
         return valid
     except Exception as e:

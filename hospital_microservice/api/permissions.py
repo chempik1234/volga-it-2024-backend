@@ -8,7 +8,7 @@ class IsAdminUserWithRole(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if hasattr(request.user, 'roles'):  # user must have roles attribute which presents the role names list
-            return "Admin" in request.user["roles"]
+            return "Admin" in request.user.roles
         return False
 
 
@@ -21,6 +21,17 @@ class IsAdminOrAuthenticatedAndGET(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if request.user and request.method == "GET" or \
-                hasattr(request.user, 'roles') and "Admin" in request.user["roles"]:
+                hasattr(request.user, 'roles') and "Admin" in request.user.roles:
             return True
         return False
+
+
+class IsAuthenticated(permissions.BasePermission):
+    """
+    Allows access only to authenticated users.
+
+    DIFFERENT FROM ORIGINAL: checks only "user isn't None"
+    """
+
+    def has_permission(self, request, view):
+        return request.user is not None

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
+from datetime import timedelta
 
 from pathlib import Path
 
@@ -163,8 +164,13 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+}
+
 GRPC_FRAMEWORK = {
     'ROOT_HANDLERS_HOOK': 'api.grpc_handlers.grpc_handlers',
 }
+
 GRPC_PORT_ACCOUNT = os.getenv("GRPC_PORT_ACCOUNT", "50051")
 GRPC_PORT_HOSPITAL = os.getenv("GRPC_PORT_HOSPITAL", "50052")

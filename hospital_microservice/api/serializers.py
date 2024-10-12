@@ -15,23 +15,33 @@ class RoomSerializer(serializers.ModelSerializer):
         lookup_field = "name"
 
     def validate_name(self, value):
-        print("validate role name !", value)
         return value
 
     def to_representation(self, instance):
         return instance.name
+
+    @property
+    def data(self):
+        return self.fields.get("name")
+
+    def get_default(self):
+        return "name"
+
+    def get_initial(self):
+        return self.fields["name"]
 
 
 class HospitalSerializer(serializers.ModelSerializer):
     """
     Hospital serializer with rooms (no need for extension, as I did with users)
     """
-    contactNumber = serializers.CharField(source="contact_number")
+    contactPhone = serializers.CharField(source="contact_phone")
     rooms = RoomSerializer(many=True, required=False)
 
     class Meta:
         model = Hospital
-        fields = ("id", "name", "address", "contactNumber", "rooms")
+        fields = ("id", "name", "address", "contactPhone", "rooms")
+        lookup_field = "id"
 
     def create(self, validated_data):
         """

@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Value, Q
 from django.db.models.functions import Concat
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -11,6 +13,19 @@ from ..serializers import CustomUserSerializer
 User = get_user_model()
 
 
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter("from", description="Selection start (not by ID!)",
+                             type=OpenApiTypes.INT, location=OpenApiParameter.QUERY),
+            OpenApiParameter("count", description="Selection size (not by ID!)",
+                             type=OpenApiTypes.INT, location=OpenApiParameter.QUERY),
+            OpenApiParameter("nameFilter",description="Full name filter (fullName = BOTH firstName + "
+                                                      "lastName AND lastName + firstName)",
+                             type=OpenApiTypes.STR, location=OpenApiParameter.QUERY),
+        ]
+    )
+)
 class DoctorsListView(ListAPIView):
     """
     Doctors list endpoint. Basically, it's just the users list but with the Doctor role.

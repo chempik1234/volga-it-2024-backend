@@ -17,13 +17,13 @@ def data_process_hospital_or_room(hospital_id, room_name=None):
 
     Uses RabbitMQ to get the doctor data and ORM to get the hospital data
     """
-    message = {"hospital_id": hospital_id}
+    message = {"hospital_id": hospital_id, "valid": False}
     if room_name is None:
         hospital_with_given_id = Hospital.objects.filter(id=hospital_id)
         if hospital_with_given_id.exists():
-            message["hospital"] = HospitalSerializer(hospital_with_given_id.first()).data
+            message["valid"] = True  # HospitalSerializer(hospital_with_given_id.first()).data
     else:
         room_with_given_params = Room.objects.filter(name=room_name, hospital__id=hospital_id)
         if room_with_given_params.exists():
-            message["room"] = RoomSerializer(room_with_given_params).data
+            message["valid"] = True  # RoomSerializer(room_with_given_params).data
     return message

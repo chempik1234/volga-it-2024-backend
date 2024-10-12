@@ -1,4 +1,10 @@
+import logging
+
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions
+
+from .grpc_consume_produce import grpc_check_user_and_role
+from .models import Visit
 
 
 class IsAdminOrManagerOrDoctorWithRole(permissions.BasePermission):
@@ -8,8 +14,8 @@ class IsAdminOrManagerOrDoctorWithRole(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if hasattr(request.user, 'roles'):  # user must have roles attribute which presents the role names list
-            return ("Admin" in request.user["roles"] or "Manager" in request.user['roles'] or
-                    'Doctor' in request.user['roles'])
+            return ("Admin" in request.user.roles or "Manager" in request.user.roles or
+                    'Doctor' in request.user.roles)
         return False
 
 
@@ -20,7 +26,7 @@ class IsAdminOrManagerWithRole(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if hasattr(request.user, 'roles'):  # user must have roles attribute which presents the role names list
-            return "Admin" in request.user["roles"] or "Manager" in request.user['roles']
+            return "Admin" in request.user.roles or "Manager" in request.user.roles
         return False
 
 
@@ -33,7 +39,7 @@ class IsDoctorWithRole(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if hasattr(request.user, 'roles'):  # user must have roles attribute which presents the role names list
-            return "Doctor" in request.user['roles']
+            return "Doctor" in request.user.roles
         return False
 
 
@@ -46,5 +52,48 @@ class IsDoctorOrPatientWithRole(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if hasattr(request.user, 'roles'):  # user must have roles attribute which presents the role names list
-            return "Doctor" in request.user['roles'] or 'User' in request.user['roles']
+            return "Doctor" in request.user.roles or 'User' in request.user.roles
         return False
+
+
+class IsDoctorOrLinkedPatientToVisit(permissions.BasePermission):
+    """
+    Permission for accessing Visits that allows it if the user is a doctor or the patient linked to given Visit
+    """
+
+    def has_permission(self, request, view):
+        if request.user is None:
+            return False
+        visit_id = request.parser_context['kwargs'].get("id")
+        instance = Visit.objects.filter(id=visit_id)
+        if instance.exists():
+            instance = instance.first()
+            return instance.patient_id == request.user.id or "Doctor" in request.user.roles
+        return False
+
+
+class IsDoctorOrGivenPatient(permissions.BasePermission):
+    """
+    Permission for viewing history by patient id. Allows if the user is a doctor or the given patient
+    """
+
+    def has_permission(self, request, view):
+        patient_id = request.parser_context['kwargs'].get("id")
+        patient = grpc_check_user_and_role(patient_id, 'User')
+        if not patient:
+            return False
+        if patient.id == request.user.id or "Doctor" in request.user.roles:
+            return True
+
+
+class GetPutVisitByIdPermission(permissions.BasePermission):
+    """
+    Special permission: if GET then IsDoctorOrLinkedPatientToVisit, else IsAdminOrManagerWithRole
+    """
+
+    def has_permission(self, request, view):
+        logging.error(f"KFDSA JDFLKSAJ DK {request.method} {request.method == "PUT"} {IsDoctorOrLinkedPatientToVisit().has_permission(request, view)} {IsAdminOrManagerWithRole().has_permission(request, view)}")
+        if request.method == "GET":
+            return IsDoctorOrLinkedPatientToVisit().has_permission(request, view)
+        else:
+            return IsAdminOrManagerWithRole().has_permission(request, view)
