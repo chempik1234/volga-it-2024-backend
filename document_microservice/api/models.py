@@ -1,4 +1,5 @@
 from django.db import models
+# from .elasticsearch_documents import VisitIndex
 
 
 class Visit(models.Model):
@@ -42,3 +43,15 @@ class Visit(models.Model):
         null=False,
         blank=True
     )
+
+    # def elastic_index(self):
+    #     new_document = VisitIndex(
+    #         meta={
+    #             'id': self.id
+    #         },
+    #         date=self.date,
+    #         room=self.room,
+    #         data=self.data
+    #     )
+    #     new_document.save()
+    #     return new_document.to_dict(include_meta=True)

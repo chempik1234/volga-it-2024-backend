@@ -1,5 +1,6 @@
+import debug_toolbar
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 
 from drf_spectacular.views import (SpectacularAPIView, SpectacularRedocView,
                                    SpectacularSwaggerView)
@@ -9,6 +10,8 @@ urlpatterns = [
     # API's
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/', include('api.urls', namespace='api')),
+    re_path(r'^search/', include('search_index.urls', namespace='search')),
+    path('__debug__/', include(debug_toolbar.urls)),
 ]
 
 

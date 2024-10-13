@@ -6,4 +6,4 @@ class ApiConfig(AppConfig):
     name = 'api'
 
     def ready(self):
-        from . import signals  # signals are used to automatically write/clean cache
+        from . import signals  # signals are used to automatically write/clean cache and elasticsearch index

@@ -66,5 +66,3 @@ class VisitCreateView(CreateAPIView):
     permission_classes = [IsAdminOrManagerWithRole,]
     serializer_class = VisitSerializer
 
-
-# TODO: ElasticSearch

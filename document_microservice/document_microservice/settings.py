@@ -39,7 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "drf_spectacular",
     "rest_framework",
-    "api"
+    "api",
+    'search_index',
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
+
+    'debug_toolbar',
+    # 'elastic_panel',
 ]
 
 MIDDLEWARE = [
@@ -49,7 +55,10 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware'
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'debug_toolbar_force.middleware.ForceDebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'document_microservice.urls'
@@ -157,7 +166,12 @@ REST_FRAMEWORK = {
     'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S.%fZ',
     "AUTH_TOKEN_CLASSES": [
         "api.authenticator.SimpleGPRCToken"
-     ]
+     ],
+    # ElasticSearch -->
+    # 'DEFAULT_PAGINATION_CLASS':
+    #     'rest_framework.pagination.PageNumberPagination',
+    # 'PAGE_SIZE': 100,
+    # 'ORDERING_PARAM': 'ordering',
 }
 
 GRPC_FRAMEWORK = {
@@ -165,3 +179,35 @@ GRPC_FRAMEWORK = {
 }
 GRPC_PORT_ACCOUNT = os.getenv("GRPC_PORT_ACCOUNT", "50051")
 GRPC_PORT_HOSPITAL = os.getenv("GRPC_PORT_HOSPITAL", "50052")
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': os.getenv("ELASTICSEARCH_DSL_HOSTS", 'localhost:9200')
+    },
+}
+
+ELASTICSEARCH_INDEX_NAMES = {
+    'search_index.visit_document': 'visit',
+}
+
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+}
+
+DEBUG_TOOLBAR_PANELS = (
+    # Defaults
+    'debug_toolbar.panels.versions.VersionsPanel',
+    'debug_toolbar.panels.timer.TimerPanel',
+    'debug_toolbar.panels.settings.SettingsPanel',
+    'debug_toolbar.panels.headers.HeadersPanel',
+    'debug_toolbar.panels.request.RequestPanel',
+    'debug_toolbar.panels.sql.SQLPanel',
+    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+    'debug_toolbar.panels.templates.TemplatesPanel',
+    'debug_toolbar.panels.cache.CachePanel',
+    'debug_toolbar.panels.signals.SignalsPanel',
+    'debug_toolbar.panels.logging.LoggingPanel',
+    'debug_toolbar.panels.redirects.RedirectsPanel',
+    # Additional
+    # 'elastic_panel.panel.ElasticDebugPanel',
+)
