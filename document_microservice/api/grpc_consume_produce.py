@@ -44,7 +44,7 @@ def grpc_check_hospital(hospital_id):
         client = hospital_pb2_grpc.HospitalRpcServiceStub(channel)
         request = HospitalRequest(hospital_id=hospital_id)
         response = client.ValidateHospital(request)
-        logger.error("RESPONSE: ", response)
+        logger.info("RESPONSE: ", response)
         valid = getattr(response, "valid", False)
         return valid
     except Exception as e:
@@ -58,7 +58,7 @@ def grpc_check_room(hospital_id, room_name):
         client = hospital_pb2_grpc.HospitalRpcServiceStub(channel)
         request = RoomRequest(hospital_id=hospital_id, room_name=room_name)
         response = client.ValidateRoom(request)
-        logger.error("RESPONSE: ", response)
+        logger.info("RESPONSE: ", response)
         valid = getattr(response, "valid", False)
         return valid
     except Exception as e:

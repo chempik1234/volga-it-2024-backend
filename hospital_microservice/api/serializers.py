@@ -20,15 +20,15 @@ class RoomSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         return instance.name
 
-    @property
-    def data(self):
-        return self.fields.get("name")
+    # @property
+    # def data(self):
+    #     return self.fields.get("name")
 
-    def get_default(self):
-        return "name"
+    # def get_default(self):
+    #     return "name"
 
-    def get_initial(self):
-        return self.fields["name"]
+    # def get_initial(self):
+    #     return self.fields["name"]
 
 
 class HospitalSerializer(serializers.ModelSerializer):
@@ -49,6 +49,8 @@ class HospitalSerializer(serializers.ModelSerializer):
         :return: created hospital
         """
         room_names = validated_data.pop('rooms', [])  # rooms are popped from validated_data to not bother the super()
+        # [{"name": name}, ..]
+        room_names = [i["name"] for i in room_names]  # [name, ...]
 
         with transaction.atomic():  # this big hospital & rooms creation operation must be atomic!
             new_hospital = super().create(validated_data)  # let the rest framework handle hospital creation

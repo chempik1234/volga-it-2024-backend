@@ -180,9 +180,12 @@ GRPC_FRAMEWORK = {
 GRPC_PORT_ACCOUNT = os.getenv("GRPC_PORT_ACCOUNT", "50051")
 GRPC_PORT_HOSPITAL = os.getenv("GRPC_PORT_HOSPITAL", "50052")
 
+# ELASTIC
+USE_PROXY_MODELS = False
+
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': os.getenv("ELASTICSEARCH_DSL_HOSTS", 'localhost:9200')
+        'hosts': os.getenv("ELASTICSEARCH_DSL_HOSTS", os.getenv("ELASTICSEARCH_DSL_HOSTS"))
     },
 }
 
