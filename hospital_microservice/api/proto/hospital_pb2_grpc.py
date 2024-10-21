@@ -44,6 +44,11 @@ class HospitalRpcServiceStub(object):
                 request_serializer=hospital__pb2.RoomRequest.SerializeToString,
                 response_deserializer=hospital__pb2.RoomResponse.FromString,
                 _registered_method=True)
+        self.HospitalDeleted = channel.unary_unary(
+                '/HospitalRpcService/HospitalDeleted',
+                request_serializer=hospital__pb2.HospitalDeletedRequest.SerializeToString,
+                response_deserializer=hospital__pb2.HospitalDeletedResponse.FromString,
+                _registered_method=True)
 
 
 class HospitalRpcServiceServicer(object):
@@ -61,6 +66,12 @@ class HospitalRpcServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def HospitalDeleted(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_HospitalRpcServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -73,6 +84,11 @@ def add_HospitalRpcServiceServicer_to_server(servicer, server):
                     servicer.ValidateRoom,
                     request_deserializer=hospital__pb2.RoomRequest.FromString,
                     response_serializer=hospital__pb2.RoomResponse.SerializeToString,
+            ),
+            'HospitalDeleted': grpc.unary_unary_rpc_method_handler(
+                    servicer.HospitalDeleted,
+                    request_deserializer=hospital__pb2.HospitalDeletedRequest.FromString,
+                    response_serializer=hospital__pb2.HospitalDeletedResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -129,6 +145,33 @@ class HospitalRpcService(object):
             '/HospitalRpcService/ValidateRoom',
             hospital__pb2.RoomRequest.SerializeToString,
             hospital__pb2.RoomResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def HospitalDeleted(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/HospitalRpcService/HospitalDeleted',
+            hospital__pb2.HospitalDeletedRequest.SerializeToString,
+            hospital__pb2.HospitalDeletedResponse.FromString,
             options,
             channel_credentials,
             insecure,

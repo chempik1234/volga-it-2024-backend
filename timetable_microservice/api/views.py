@@ -94,9 +94,9 @@ class GetDeleteTimeTablesByHospitalInPeriodView(ListAPIView, DestroyAPIView):
         if self.request.method == "GET":
             time_from_param = datetime.fromisoformat(self.request.query_params.get("from", "1970-01-01T00:00:00Z"))
             time_to_param = datetime.fromisoformat(self.request.query_params.get("to", "9999-12-31T23:59:59Z"))
-            queryset = queryset.filter(Q(time_from__lte=time_from_param) & Q(time_to_gte=time_from_param) |
-                                       Q(time_from_param__gte=time_from_param) & Q(time_to__lte=time_to_param) |
-                                       Q(time_from_param__gte=time_from_param) & Q(time_to__gte=time_to_param))
+            queryset = queryset.filter(Q(time_from__lte=time_from_param) & Q(time_to__gte=time_from_param) |
+                                       Q(time_from__gte=time_from_param) & Q(time_to__lte=time_to_param) |
+                                       Q(time_from__gte=time_from_param) & Q(time_to__gte=time_to_param))
         return queryset
 
     def destroy(self, request, *args, **kwargs):
@@ -139,9 +139,9 @@ class GetDeleteTimeTablesByDoctorInPeriodView(ListAPIView, DestroyAPIView):
         if self.request.method == "GET":
             time_from_param = datetime.fromisoformat(self.request.query_params.get("from", "1970-01-01T00:00:00Z"))
             time_to_param = datetime.fromisoformat(self.request.query_params.get("to", "9999-12-31T23:59:59Z"))
-            queryset = queryset.filter(Q(time_from__lte=time_from_param) & Q(time_to_gte=time_from_param) |
-                                       Q(time_from_param__gte=time_from_param) & Q(time_to__lte=time_to_param) |
-                                       Q(time_from_param__gte=time_from_param) & Q(time_to__gte=time_to_param))
+            queryset = queryset.filter(Q(time_from__lte=time_from_param) & Q(time_to__gte=time_from_param) |
+                                       Q(time_from__gte=time_from_param) & Q(time_to__lte=time_to_param) |
+                                       Q(time_from__gte=time_from_param) & Q(time_to__gte=time_to_param))
         return queryset
 
     def destroy(self, request, *args, **kwargs):
@@ -179,8 +179,9 @@ class GetTimetablesByHospitalRoomInPeriodView(ListAPIView):
         time_to_param = datetime.fromisoformat(self.request.query_params.get("to", "9999-12-31T23:59:59Z"))
         hospital_id = self.kwargs.get("id")
         room_name = self.kwargs.get("room")  # TODO: if there must be 1 timetable for 1 hospital room...
-        return Timetable.objects.filter(time_from__gte=time_from_param, time_to__lte=time_to_param,
-                                        hospital_id=hospital_id, room=room_name)
+        return Timetable.objects.filter(Q(time_from__lte=time_from_param) & Q(time_to__gte=time_from_param) |
+                                        Q(time_from__gte=time_from_param) & Q(time_to__lte=time_to_param) |
+                                        Q(time_from__gte=time_from_param) & Q(time_to__gte=time_to_param))
 
 
 @extend_schema_view(
@@ -222,16 +223,21 @@ class GetCreateAppointmentsByTimetableViewSet(APIView):
         timetable_to_analyze = get_object_or_404(Timetable, id=timetable_id)
 
         result_tickets_list = []  # list of datetime describing available tickets
-        """
-                           12:30        13:00        13:30        14:00        14:30        15:00
-        time_from            |            |            |            |  time_to   X            X
-        current_datetime     |            |            |            |     X      X            X
-                            free       occupied       free         free  LATE   LATE        LATE
-        result: [12:30, 13:30, 14:00]
+        """QUERY PARAMS:            FROM                                              TO
+                           12:30     |  13:00        13:30        14:00        14:30   |    15:00
+        time_from            |       |    |            |            |  time_to   X     |      X
+        current_datetime     |       |    |            |            |     X      X     |      X
+                            free     | occupied       free         free  LATE   LATE   |    LATE
+        result: [13:30, 14:00]
         """
         current_datetime = timetable_to_analyze.time_from
-        while current_datetime < timetable_to_analyze.time_to:
-            if not Appointment.objects.filter(timetable=timetable_to_analyze, time=current_datetime).exists():
+
+        time_from_param = datetime.fromisoformat(self.request.query_params.get("from", "1970-01-01T00:00:00Z"))
+        time_to_param = datetime.fromisoformat(self.request.query_params.get("to", "9999-12-31T23:59:59Z"))
+
+        while current_datetime < timetable_to_analyze.time_to and current_datetime <= time_to_param:
+            if current_datetime >= time_from_param and \
+                    not Appointment.objects.filter(timetable=timetable_to_analyze, time=current_datetime).exists():
                 result_tickets_list.append(current_datetime.isoformat())
             current_datetime += timedelta(minutes=30)
         return Response(result_tickets_list, status=status.HTTP_200_OK)

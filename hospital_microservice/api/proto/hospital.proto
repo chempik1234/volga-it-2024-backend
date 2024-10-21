@@ -20,9 +20,18 @@ message RoomResponse {
   bool valid = 3;
 }
 
+message HospitalDeletedRequest {
+  int32 hospital_id = 1;
+}
+
+message HospitalDeletedResponse {
+  int32 hospital_id = 1;
+}
+
 service HospitalRpcService {
   rpc ValidateHospital (HospitalRequest) returns (HospitalResponse);
   rpc ValidateRoom (RoomRequest) returns (RoomResponse);
+  rpc HospitalDeleted (HospitalDeletedRequest) returns (HospitalDeletedResponse);
 }
 
 // python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. hospital.proto
