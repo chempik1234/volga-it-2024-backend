@@ -15,7 +15,7 @@ def data_process_hospital_or_room(hospital_id, room_name=None):
     - if both "hospital_id" and "room_name" are sent, it returns them and serialized room if exists.
     - if only "hospital_id" is sent, it returns it with a serialized hospital if it exists, else only the id
 
-    Uses RabbitMQ to get the doctor data and ORM to get the hospital data
+    Uses gRPC to get the doctor data and ORM to get the hospital data
     """
     message = {"hospital_id": hospital_id, "valid": False}
     if room_name is None:
