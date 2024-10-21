@@ -53,7 +53,9 @@ class VisitSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         room_name, hospital_id = data.get("room"), data.get("hospitalId")
-        if grpc_check_room(hospital_id, room_name):
+
+        room_is_valid = grpc_check_room(hospital_id, room_name)
+        if not room_is_valid:
             raise ValidationError("Room with given name and hospital doesn't exist!")
         return data
 

@@ -41,19 +41,6 @@ class TimetableSerializer(serializers.ModelSerializer):
         if grpc_check_roles(user_id=value, role="Doctor"):
             return value
 
-    # def validate_room(self, value):  # TODO: delete if everything works
-    #     """
-    #     room "object exists" validator that uses sync RabbitMq request-response (senseless but cool!)
-    #
-    #     Tries to find a room only by name at this point. Name & hospital query is done afterward in validate()
-    #     """
-    #     message = {"room_name": value}
-    #     send_request_rabbit_mq(hospital_and_maybe_room_queue_request, json.dumps(message))  # 1) send validation request
-    #     response = consume_with_rabbit_mq(  # 2) get response with room info
-    #         hospital_and_maybe_room_queue_response, lambda x: (x.get('room_name', '') == value))
-    #     if response.get('room', None):
-    #         return value
-
     def validate_timeFrom(self, value):
         if value.minute % 30 or value.second != 0:
             raise ValidationError("Minutes must be a multiple of 30, and seconds must be equal to 0 in timeFrom!")
@@ -66,7 +53,7 @@ class TimetableSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         room_name, hospital_id = data.get("room"), data.get("hospitalId")
-        if grpc_check_room(hospital_id, room_name):
+        if not grpc_check_room(hospital_id, room_name):
             raise ValidationError("Room with given name and hospital doesn't exist!")
 
         time_from = data.get('time_from')
