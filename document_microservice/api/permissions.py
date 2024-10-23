@@ -79,8 +79,8 @@ class IsDoctorOrGivenPatient(permissions.BasePermission):
 
     def has_permission(self, request, view):
         patient_id = request.parser_context['kwargs'].get("id")
-        patient = grpc_check_user_and_role(patient_id, 'User')
-        if not patient:
+        patient, is_valid = grpc_check_user_and_role(patient_id, 'User')
+        if not is_valid:
             return False
         if patient.id == request.user.id or "Doctor" in request.user.roles:
             return True

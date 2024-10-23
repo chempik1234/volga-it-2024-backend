@@ -45,11 +45,14 @@ def data_process_function_user_and_role(user_id, role=None):
     Return format: {"user_id": user_id, "user": {... serialized ...}}
     """
     user_with_given_id = User.objects.filter(id=user_id)
-    message = {"user_id": user_id}
+    message = {"user_id": user_id, "valid": False}
     if role is not None:
         user_with_given_id = user_with_given_id.filter(roles__name=role)
     if user_with_given_id.exists():  # if the doctor exists, we must return his data
         message["user"] = CustomUserSerializerWithRoles(user_with_given_id.first()).data
+        message["valid"] = True
+    logger.error(f"CHECKED USER id: {user_id} role: {role if role is not None else "NO ROLE"}; "
+                 f"valid: {message['valid']}")
     return message
 
 

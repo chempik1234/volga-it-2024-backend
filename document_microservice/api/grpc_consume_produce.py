@@ -32,7 +32,7 @@ def grpc_check_user_and_role(user_id, role=None):
         request = UserRequest(user_id=user_id, role=role)
         response = client.ValidateUser(request)
         user = getattr(response, "user", None)
-        return user
+        return user, response.valid
     except Exception as e:
         logger.error(f"gRPC ERROR WHEN TRYINA CHECK USER (user_id = {user_id}) (role = {role}): {e}")
         return

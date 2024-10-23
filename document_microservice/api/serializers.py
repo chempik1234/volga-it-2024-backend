@@ -18,7 +18,7 @@ class VisitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Visit
-        fields = ("date", "patientId", "doctorId", "hospitalId", "room", "data")
+        fields = ('id', "date", "patientId", "doctorId", "hospitalId", "room", "data")
 
     def validate_hospitalId(self, value):
         """
@@ -35,7 +35,8 @@ class VisitSerializer(serializers.ModelSerializer):
 
         - checks role Doctor
         """
-        if grpc_check_user_and_role(value, "Doctor"):
+        _, is_valid = grpc_check_user_and_role(value, "Doctor")
+        if is_valid:
             return value
         else:
             raise ValidationError("doctor id couldn't be validated!")
@@ -46,7 +47,8 @@ class VisitSerializer(serializers.ModelSerializer):
 
         - checks role User
         """
-        if grpc_check_user_and_role(value, "User"):
+        _, is_valid = grpc_check_user_and_role(value, "User")
+        if is_valid:
             return value
         else:
             raise ValidationError("patient id couldn't be validated!")

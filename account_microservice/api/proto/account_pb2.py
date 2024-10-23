@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\raccount.proto\"b\n\x0eUserSerialized\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x11\n\tfirstName\x18\x02 \x01(\t\x12\x10\n\x08lastName\x18\x03 \x01(\t\x12\x10\n\x08username\x18\x04 \x01(\t\x12\r\n\x05roles\x18\x05 \x03(\t\"\x19\n\nJWTRequest\x12\x0b\n\x03jwt\x18\x01 \x01(\t\"G\n\x0bJWTResponse\x12\x0b\n\x03jwt\x18\x01 \x01(\t\x12\"\n\x04user\x18\x02 \x01(\x0b\x32\x0f.UserSerializedH\x00\x88\x01\x01\x42\x07\n\x05_user\":\n\x0bUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x11\n\x04role\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\x07\n\x05_role\"h\n\x0cUserResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x11\n\x04role\x18\x02 \x01(\tH\x00\x88\x01\x01\x12\"\n\x04user\x18\x03 \x01(\x0b\x32\x0f.UserSerializedH\x01\x88\x01\x01\x42\x07\n\x05_roleB\x07\n\x05_user2j\n\x11\x41\x63\x63ountRpcService\x12(\n\x0bValidateJWT\x12\x0b.JWTRequest\x1a\x0c.JWTResponse\x12+\n\x0cValidateUser\x12\x0c.UserRequest\x1a\r.UserResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\raccount.proto\"b\n\x0eUserSerialized\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x11\n\tfirstName\x18\x02 \x01(\t\x12\x10\n\x08lastName\x18\x03 \x01(\t\x12\x10\n\x08username\x18\x04 \x01(\t\x12\r\n\x05roles\x18\x05 \x03(\t\"\x19\n\nJWTRequest\x12\x0b\n\x03jwt\x18\x01 \x01(\t\"G\n\x0bJWTResponse\x12\x0b\n\x03jwt\x18\x01 \x01(\t\x12\"\n\x04user\x18\x02 \x01(\x0b\x32\x0f.UserSerializedH\x00\x88\x01\x01\x42\x07\n\x05_user\":\n\x0bUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x11\n\x04role\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\x07\n\x05_role\"w\n\x0cUserResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x11\n\x04role\x18\x02 \x01(\tH\x00\x88\x01\x01\x12\"\n\x04user\x18\x03 \x01(\x0b\x32\x0f.UserSerializedH\x01\x88\x01\x01\x12\r\n\x05valid\x18\x04 \x01(\x08\x42\x07\n\x05_roleB\x07\n\x05_user2j\n\x11\x41\x63\x63ountRpcService\x12(\n\x0bValidateJWT\x12\x0b.JWTRequest\x1a\x0c.JWTResponse\x12+\n\x0cValidateUser\x12\x0c.UserRequest\x1a\r.UserResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -40,7 +40,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_USERREQUEST']._serialized_start=217
   _globals['_USERREQUEST']._serialized_end=275
   _globals['_USERRESPONSE']._serialized_start=277
-  _globals['_USERRESPONSE']._serialized_end=381
-  _globals['_ACCOUNTRPCSERVICE']._serialized_start=383
-  _globals['_ACCOUNTRPCSERVICE']._serialized_end=489
+  _globals['_USERRESPONSE']._serialized_end=396
+  _globals['_ACCOUNTRPCSERVICE']._serialized_start=398
+  _globals['_ACCOUNTRPCSERVICE']._serialized_end=504
 # @@protoc_insertion_point(module_scope)

@@ -26,6 +26,7 @@ message UserResponse {
   int32 user_id = 1;
   optional string role = 2;
   optional UserSerialized user = 3;
+  bool valid = 4;
 }
 
 service AccountRpcService {

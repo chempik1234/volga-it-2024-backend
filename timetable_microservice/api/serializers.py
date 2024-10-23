@@ -38,8 +38,11 @@ class TimetableSerializer(serializers.ModelSerializer):
 
         - checks role Doctor
         """
-        if grpc_check_roles(user_id=value, role="Doctor"):
+        _, is_valid = grpc_check_roles(user_id=value, role="Doctor")
+        if is_valid:
             return value
+        else:
+            raise ValidationError("Couldn't validate doctorId!")
 
     def validate_timeFrom(self, value):
         if value.minute % 30 or value.second != 0:
