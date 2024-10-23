@@ -52,8 +52,8 @@ class TimetableSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        room_name, hospital_id = data.get("room"), data.get("hospitalId")
-        if not grpc_check_room(hospital_id, room_name):
+        room_name, hospital_id = data.get("room"), data.get("hospital_id")
+        if not grpc_check_room(hospital_id=hospital_id, room_name=room_name):
             raise ValidationError("Room with given name and hospital doesn't exist!")
 
         time_from = data.get('time_from')

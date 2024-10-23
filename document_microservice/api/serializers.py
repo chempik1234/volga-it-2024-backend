@@ -52,7 +52,7 @@ class VisitSerializer(serializers.ModelSerializer):
             raise ValidationError("patient id couldn't be validated!")
 
     def validate(self, data):
-        room_name, hospital_id = data.get("room"), data.get("hospitalId")
+        room_name, hospital_id = data.get("room"), data.get("hospital_id")
 
         room_is_valid = grpc_check_room(hospital_id, room_name)
         if not room_is_valid:
