@@ -1,9 +1,11 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, inline_serializer
 from rest_framework import status, serializers
 from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -25,6 +27,8 @@ class CustomTokenVerifyView(GenericAPIView):
     allowed_methods = ["get"]
     http_method_names = ["get"]
     serializer_class = CustomTokenVerifySerializer
+    permission_classes = [AllowAny,]
+    authentication_classes = []
 
     def get(self, request: Request) -> Response:
         access_token = request.query_params.get("accessToken")  # try to retrieve the token from params
@@ -32,9 +36,9 @@ class CustomTokenVerifyView(GenericAPIView):
             return Response({'error': 'Access token is required'}, status=status.HTTP_400_BAD_REQUEST)
         try:
             AccessToken(access_token)  # check the token with rest_framework
-            return Response(self.serializer_class(data={"valid": True}).data, status=status.HTTP_200_OK)
+            return Response(self.serializer_class({"valid": True}).data, status=status.HTTP_200_OK)
         except TokenError:  # if it's invalid, an exception is raised, so ERROR 401 should be thrown in response
-            return Response(self.serializer_class(data={"valid": False}).data, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(self.serializer_class({"valid": False}).data, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @extend_schema_view(
@@ -55,7 +59,14 @@ class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request: Request, *args, **kwargs) -> Response:
         refresh_token = request.data.get('refreshToken')  # get the token from request body
         if not refresh_token:  # it's required, so ERROR 400 is thrown if absent
-            return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Refresh token (refreshToken) is required'},
+                            status=status.HTTP_400_BAD_REQUEST)
         request._body = f"refresh={refresh_token}".encode()  # rename according to library standard
         request.data.update({"refresh": refresh_token})
-        return super().post(request, args, kwargs)  # let rest_framework handle the token
+        return_data = super().post(request, args, kwargs)  # let rest_framework handle the token
+
+        refresh_outstanding_token = OutstandingToken.objects.filter(token=refresh_token)
+        if refresh_outstanding_token.exists():  # blacklist current refresh token afterwards
+            t, _ = BlacklistedToken.objects.get_or_create(token=refresh_outstanding_token)
+
+        return return_data  # well done

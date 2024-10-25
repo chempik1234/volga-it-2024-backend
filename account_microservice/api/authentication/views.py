@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 
+from ..models import Role
 from ..serializers import CustomUserSerializer, SignOutSerializer, CustomTokenObtainPairSerializer
 
 logger = logging.getLogger(__name__)
@@ -50,6 +51,7 @@ class SignUpView(GenericAPIView):
         new_user.username = username
         new_user.set_password(password)
         new_user.save()
+        new_user.roles.add(Role.objects.get_or_create(name="User"))
         return Response(self.serializer_class(new_user).data, status=status.HTTP_201_CREATED)
 
 
@@ -61,6 +63,7 @@ class SignInView(GenericAPIView):
     allowed_methods = ["post"]
     http_method_names = ["post"]
     permission_classes = (AllowAny,)
+    authentication_classes = []
     serializer_class = CustomTokenObtainPairSerializer
 
     def post(self, request: Request) -> Response:

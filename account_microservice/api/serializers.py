@@ -73,8 +73,10 @@ class CustomUserSerializerWithRoles(CustomUserSerializer):
     """CustomUser serializer with roles support, for admin functions."""
     roles = RoleSerializer(many=True)
 
-    # def get_roles(self, obj):
-    #     return obj.roles.values_list("name", flat=True)
+    def validate_roles(self, value: list):  # list of roles {name: rolename}
+        if len(value) < 1:
+            raise ValidationError("At least 1 role required!")
+        return value
 
     class Meta:
         fields = ('id', 'firstName', 'lastName', 'username', "roles", "password")
